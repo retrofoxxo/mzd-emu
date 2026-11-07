@@ -34,6 +34,7 @@ const sendContextChange = function (ws, uiaId, ctxtId, params, contextSeq, skipG
     ws.send(withSeqByte(focusStackMsg, seqByte));
     ws.send(withSeqByte(transitionFalse, seqByte));
     logger.info('screen', '%s/%s', uiaId, ctxtId);
+    navigationState.current = { uiaId: uiaId, ctxtId: ctxtId, params: params };
 
     if (
         !skipGoBackPush &&

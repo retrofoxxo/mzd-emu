@@ -1,0 +1,779 @@
+[
+ {
+  "no": 0,
+  "id": "Hybrid_System_Inspection_Required",
+  "priority": "High",
+  "label": "Hybrid System Malfunction",
+  "dialog": "Hybrid System Malfunction. Stop vehicle immediately in a safe place."
+ },
+ {
+  "no": 1,
+  "id": "Charging_System_Inspection_Required",
+  "priority": "High",
+  "label": "Charging System Malfunction",
+  "dialog": "Charging System Malfunction. Stop vehicle immediately in a safe place."
+ },
+ {
+  "no": 2,
+  "id": "Charging_System_Inspection_Required_1",
+  "priority": "High",
+  "label": "Charging System Malfunction",
+  "dialog": "Charging System Malfunction. Stop vehicle immediately in a safe place."
+ },
+ {
+  "no": 3,
+  "id": "Charging_System_Inspection_Required_2",
+  "priority": "High",
+  "label": "Charging System Malfunction",
+  "dialog": "Charging System Malfunction. Stop vehicle immediately in a safe place."
+ },
+ {
+  "no": 4,
+  "id": "iELOOP_Energy_pre_charging",
+  "priority": "High",
+  "label": "i-ELOOP Charging",
+  "dialog": "i-ELOOP Charging. With the Engine running, check that the Charging is complete and the Warning Indicator is Off."
+ },
+ {
+  "no": 5,
+  "id": "Engine_Coolant_Temperature_High",
+  "priority": "High",
+  "label": "Engine Coolant Temperature High",
+  "dialog": "Engine Coolant Temperature High. Stop vehicle immediately in a safe place."
+ },
+ {
+  "no": 6,
+  "id": "Low_12V_Battery",
+  "priority": "Low",
+  "label": "12V Battery Low",
+  "dialog": ""
+ },
+ {
+  "no": 7,
+  "id": "Low_HV_Battery",
+  "priority": "Low",
+  "label": "High Voltage Battery Low",
+  "dialog": ""
+ },
+ {
+  "no": 8,
+  "id": "P_Lock_fault",
+  "priority": "Low",
+  "label": "Park Position Cntrl System Error",
+  "dialog": ""
+ },
+ {
+  "no": 9,
+  "id": "Hybrid_System_Over_Heat_Protection",
+  "priority": "Low",
+  "label": "Hybrid System Overheating",
+  "dialog": ""
+ },
+ {
+  "no": 10,
+  "id": "Set_shift_lever_to_P_position",
+  "priority": "Low",
+  "label": "Park Position Request",
+  "dialog": ""
+ },
+ {
+  "no": 11,
+  "id": "Brake_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Brake System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 12,
+  "id": "ECB_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Brake System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 13,
+  "id": "ABS_System_Inspection_Required",
+  "priority": "Low",
+  "label": "ABS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 14,
+  "id": "ESC_System_Inspection_Required",
+  "priority": "Low",
+  "label": "DSC Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 15,
+  "id": "Key_Battery_low",
+  "priority": "Low",
+  "label": "Key Battery Low",
+  "dialog": ""
+ },
+ {
+  "no": 16,
+  "id": "Engine_Oil_Pressure_Inspection_Required",
+  "priority": "Low",
+  "label": "Low Engine Oil Pressure",
+  "dialog": ""
+ },
+ {
+  "no": 17,
+  "id": "Engine_Oil_Pressure_Inspection_Required_1",
+  "priority": "Low",
+  "label": "Low Engine Oil Pressure",
+  "dialog": ""
+ },
+ {
+  "no": 18,
+  "id": "iELOOP_Inspection_Required",
+  "priority": "Low",
+  "label": "i-ELOOP System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 19,
+  "id": "Brake_Fluid_Level_low",
+  "priority": "Low",
+  "label": "Low Brake Fluid",
+  "dialog": ""
+ },
+ {
+  "no": 20,
+  "id": "Brake_Inspection_Required",
+  "priority": "Low",
+  "label": "Brake System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 21,
+  "id": "Check_Tyre_Pressure",
+  "priority": "Low",
+  "label": "Low Tire Air Pressure",
+  "dialog": ""
+ },
+ {
+  "no": 22,
+  "id": "Check_Tyre_Pressure_1",
+  "priority": "Low",
+  "label": "Low Tire Air Pressure",
+  "dialog": ""
+ },
+ {
+  "no": 23,
+  "id": "Engine_Coolant_Temperature_High_1",
+  "priority": "Low",
+  "label": "Engine Coolant Temperature High",
+  "dialog": ""
+ },
+ {
+  "no": 24,
+  "id": "Stop_Vehicle_at_safe_area",
+  "priority": "Low",
+  "label": "4WD System Inspection",
+  "dialog": ""
+ },
+ {
+  "no": 25,
+  "id": "Soot_Accumulation_in_DPF_high",
+  "priority": "Low",
+  "label": "PM Accumulation in DPF",
+  "dialog": ""
+ },
+ {
+  "no": 26,
+  "id": "Potentially_Icy_Road_Condition",
+  "priority": "Low",
+  "label": "Road Surface Icing Caution",
+  "dialog": ""
+ },
+ {
+  "no": 27,
+  "id": "Refill_Fuel_Tank",
+  "priority": "Low",
+  "label": "Low Fuel",
+  "dialog": ""
+ },
+ {
+  "no": 28,
+  "id": "Check_Fuel_Cap",
+  "priority": "Low",
+  "label": "Fuel Cap Inspection",
+  "dialog": ""
+ },
+ {
+  "no": 29,
+  "id": "Check_Fuel_Cap_1",
+  "priority": "Low",
+  "label": "Fuel Cap Inspection",
+  "dialog": ""
+ },
+ {
+  "no": 30,
+  "id": "Power_Steering_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Power Steering System Error",
+  "dialog": ""
+ },
+ {
+  "no": 31,
+  "id": "Engine_Inspection_Required",
+  "priority": "Low",
+  "label": "Engine System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 32,
+  "id": "Engine_Inspection_Required_1",
+  "priority": "Low",
+  "label": "Engine System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 33,
+  "id": "RCM_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Safety Restraint System Error",
+  "dialog": ""
+ },
+ {
+  "no": 34,
+  "id": "ABS_System_Inspection_Required_1",
+  "priority": "Low",
+  "label": "ABS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 35,
+  "id": "ESC_System_Inspection_Required_1",
+  "priority": "Low",
+  "label": "DSC Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 36,
+  "id": "RVM_System_Inspection_Required",
+  "priority": "Low",
+  "label": "RVM Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 37,
+  "id": "BSM_System_Inspection_Required",
+  "priority": "Low",
+  "label": "BSM Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 38,
+  "id": "AFLS_System_Inspection_Required",
+  "priority": "Low",
+  "label": "AFS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 39,
+  "id": "ALM_System_Inspection_Required",
+  "priority": "Low",
+  "label": "AutoLevelSystemErrorShrtJ03",
+  "dialog": ""
+ },
+ {
+  "no": 40,
+  "id": "iStop_System_Inspection_Required",
+  "priority": "Low",
+  "label": "i-stop System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 41,
+  "id": "TPMS_Inspection_Required",
+  "priority": "Low",
+  "label": "TPMS System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 42,
+  "id": "TPMS_Inspection_Required_1",
+  "priority": "Low",
+  "label": "TPMS System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 43,
+  "id": "Keyless_System_inspection_Required",
+  "priority": "Low",
+  "label": "Keyless Entry Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 44,
+  "id": "FWD_System_Inspection_Required",
+  "priority": "Low",
+  "label": "4WD System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 45,
+  "id": "DPF_Inspection_Required",
+  "priority": "Low",
+  "label": "DPF Error",
+  "dialog": ""
+ },
+ {
+  "no": 46,
+  "id": "Auto_trans_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Auto. Transmission Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 47,
+  "id": "Battery_Management_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Battery Mgmt. Sys. Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 48,
+  "id": "Brake_Override_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Brake Override Sys. Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 49,
+  "id": "MRCC_System_Inspection_Required",
+  "priority": "Low",
+  "label": "MRCC Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 50,
+  "id": "SBS_System_Inspection_Required",
+  "priority": "Low",
+  "label": "SBS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 51,
+  "id": "FOW_System_Inspection_Required",
+  "priority": "Low",
+  "label": "FOW Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 52,
+  "id": "DRSS_System_Inspection_Required",
+  "priority": "Low",
+  "label": "DRSS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 53,
+  "id": "FOW_Radar_Blocked",
+  "priority": "Low",
+  "label": "FOW Radar Blocked",
+  "dialog": ""
+ },
+ {
+  "no": 54,
+  "id": "FOW_DRSS_Radar_Blocked",
+  "priority": "Low",
+  "label": "FOW DRSS Radar Blocked",
+  "dialog": ""
+ },
+ {
+  "no": 55,
+  "id": "FOW_MRCC_Radar_Blocked",
+  "priority": "Low",
+  "label": "FOW/MRCC Radar Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 56,
+  "id": "FOW_MRCC_DRSS_Radar_Blocked",
+  "priority": "Low",
+  "label": "FOW/MRCC/DRSS Radar Error",
+  "dialog": ""
+ },
+ {
+  "no": 57,
+  "id": "SBS_Radar_Blocked",
+  "priority": "Low",
+  "label": "SBS Radar Blocked",
+  "dialog": ""
+ },
+ {
+  "no": 58,
+  "id": "SBS_MRCC_Radar_Blocked",
+  "priority": "Low",
+  "label": "SBS/MRCC Radar Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 59,
+  "id": "SBS_DRSS_Radar_Blocked",
+  "priority": "Low",
+  "label": "SBS DRSS Radar Blocked",
+  "dialog": ""
+ },
+ {
+  "no": 60,
+  "id": "SBS_MRCC_DRSS_Radar_Blocked",
+  "priority": "Low",
+  "label": "SBS/MRCC/DRSS Radar Error",
+  "dialog": ""
+ },
+ {
+  "no": 61,
+  "id": "MRCC_Not_Available",
+  "priority": "Low",
+  "label": "MRCC Unavailable",
+  "dialog": ""
+ },
+ {
+  "no": 62,
+  "id": "SBS_Brake_Not_Available",
+  "priority": "Low",
+  "label": "SBS Brake Unavailable",
+  "dialog": ""
+ },
+ {
+  "no": 63,
+  "id": "SBS_Brake_MRCC_Not_Available",
+  "priority": "Low",
+  "label": "SBS Brake/MRCC Unavailable",
+  "dialog": ""
+ },
+ {
+  "no": 64,
+  "id": "SCBS_Inspection_Required",
+  "priority": "Low",
+  "label": "SCBS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 65,
+  "id": "SCBS_Clear_windshield_completely",
+  "priority": "Low",
+  "label": "SCBS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 66,
+  "id": "SCBS_Not_Available",
+  "priority": "Low",
+  "label": "SCBS Unavailable",
+  "dialog": ""
+ },
+ {
+  "no": 67,
+  "id": "LDWS_Inspection_Required",
+  "priority": "Low",
+  "label": "LDWS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 69,
+  "id": "HBC_System_Inspection_Required",
+  "priority": "Low",
+  "label": "HBC Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 70,
+  "id": "HBC_LDWS_Camera_Malfunction",
+  "priority": "Low",
+  "label": "HBC/LDWS Camera Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 71,
+  "id": "HBC_LDWS_System_Malfunction",
+  "priority": "Low",
+  "label": "HBC/LDWS System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 72,
+  "id": "HBC_LDWS_System_Malfunction_1",
+  "priority": "Low",
+  "label": "HBC/LDWS System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 73,
+  "id": "Drain_Water_from_Fuel_Filter",
+  "priority": "Low",
+  "label": "Sedimenter Inspection",
+  "dialog": ""
+ },
+ {
+  "no": 74,
+  "id": "Replace_Fuel_Filter",
+  "priority": "Low",
+  "label": "Fuel/Air Filter Replacement Rqd.",
+  "dialog": ""
+ },
+ {
+  "no": 75,
+  "id": "Vehicle_Communication_System_Inspection_Required",
+  "priority": "Low",
+  "label": "Vehicle System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 76,
+  "id": "Vehicle_Communication_System_Inspection_Required_1",
+  "priority": "Low",
+  "label": "Vehicle System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 77,
+  "id": "Vehicle_Communication_System_Inspection_Required_2",
+  "priority": "Low",
+  "label": "Vehicle System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 78,
+  "id": "Vehicle_Communication_System_Inspection_Required_3",
+  "priority": "Low",
+  "label": "Vehicle System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 79,
+  "id": "Vehicle_Communication_System_Inspection_Required_4",
+  "priority": "Low",
+  "label": "Vehicle System Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 80,
+  "id": "Refill_w_screen_washer",
+  "priority": "Low",
+  "label": "Low Washer Fluid",
+  "dialog": ""
+ },
+ {
+  "no": 81,
+  "id": "Engine_Coolant_Temperature_Low",
+  "priority": "Low",
+  "label": "Engine Coolant Temperature Low",
+  "dialog": ""
+ },
+ {
+  "no": 82,
+  "id": "Heating_Glow_Plug",
+  "priority": "Low",
+  "label": "Glow Plugs Preheating",
+  "dialog": ""
+ },
+ {
+  "no": 83,
+  "id": "Electric_Parking_Brake_Malfunction",
+  "priority": "Low",
+  "label": "ElectricParkingBrakeShrt",
+  "dialog": ""
+ },
+ {
+  "no": 84,
+  "id": "Electric_Parking_Brake_Malfunction_1",
+  "priority": "Low",
+  "label": "ElectricParkingBrakeShrt",
+  "dialog": ""
+ },
+ {
+  "no": 85,
+  "id": "Active_Bonnet_System_Malfunction",
+  "priority": "Low",
+  "label": "ActiveBonnetSystemMalfunctionShrt",
+  "dialog": ""
+ },
+ {
+  "no": 86,
+  "id": "Low_Tire_Air_Pressure",
+  "priority": "Low",
+  "label": "Low Tire Air Pressure",
+  "dialog": ""
+ },
+ {
+  "no": 87,
+  "id": "Electric_Vacuum_Pump_System_Malfunction",
+  "priority": "Low",
+  "label": "ElectricVacuumPumpSystemMalfunctionShrt",
+  "dialog": ""
+ },
+ {
+  "no": 88,
+  "id": "Electric_Vacuum_Pump_System_Malfunction_1",
+  "priority": "Low",
+  "label": "ElectricVacuumPumpSystemMalfunctionShrt",
+  "dialog": ""
+ },
+ {
+  "no": 89,
+  "id": "LowEngineOillevel",
+  "priority": "Low",
+  "label": "LowEngineOillevel",
+  "dialog": ""
+ },
+ {
+  "no": 90,
+  "id": "HighEngineOillevel",
+  "priority": "Low",
+  "label": "HighEngineOillevel",
+  "dialog": ""
+ },
+ {
+  "no": 91,
+  "id": "OilLevelSystemMalfunctioning",
+  "priority": "Low",
+  "label": "OilLevelSystemMalfunctioning",
+  "dialog": ""
+ },
+ {
+  "no": 92,
+  "id": "Run_Cooling_Pump",
+  "priority": "Low",
+  "label": "AfterRunCoolingPumpShrt",
+  "dialog": ""
+ },
+ {
+  "no": 93,
+  "id": "Cold_Start_Disable",
+  "priority": "Low",
+  "label": "ColdStartDisableShrt",
+  "dialog": ""
+ },
+ {
+  "no": 94,
+  "id": "Electronic_Throttle_Control",
+  "priority": "Low",
+  "label": "ElectronicThrottleControlShrt",
+  "dialog": ""
+ },
+ {
+  "no": 95,
+  "id": "SCBSUnavailable",
+  "priority": "Low",
+  "label": "SCBS Unavailable",
+  "dialog": ""
+ },
+ {
+  "no": 96,
+  "id": "LDWSLASUnavailable",
+  "priority": "Low",
+  "label": "LDWS unavailable",
+  "dialog": ""
+ },
+ {
+  "no": 97,
+  "id": "HBCALHUnavailable",
+  "priority": "Low",
+  "label": "HBC unavailable",
+  "dialog": ""
+ },
+ {
+  "no": 98,
+  "id": "SCRMalfunction",
+  "priority": "Low",
+  "label": "ScrMalfunction",
+  "dialog": ""
+ },
+ {
+  "no": 99,
+  "id": "SCRMalfunction1",
+  "priority": "Low",
+  "label": "ScrMalfunction",
+  "dialog": ""
+ },
+ {
+  "no": 100,
+  "id": "SCRMalfunction2",
+  "priority": "Low",
+  "label": "ScrMalfunction",
+  "dialog": ""
+ },
+ {
+  "no": 101,
+  "id": "SCBSMalfunction1",
+  "priority": "Low",
+  "label": "SCBS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 102,
+  "id": "SCBSMalfunction2",
+  "priority": "Low",
+  "label": "SCBS Malfunction",
+  "dialog": ""
+ },
+ {
+  "no": 103,
+  "id": "SCBSMalfunction3",
+  "priority": "Low",
+  "label": "SCBSSysErrorShort_105",
+  "dialog": ""
+ },
+ {
+  "no": 105,
+  "id": "CTS_Malfunction_DN_106_1",
+  "priority": "Low",
+  "label": "CTSMalfunction",
+  "dialog": ""
+ },
+ {
+  "no": 106,
+  "id": "TJA_Malfunction_DN_106_2",
+  "priority": "Low",
+  "label": "TJAMalfunction",
+  "dialog": ""
+ },
+ {
+  "no": 107,
+  "id": "CTS_System_Disabled_DN_107_1",
+  "priority": "Low",
+  "label": "CTSSystemDisabled",
+  "dialog": ""
+ },
+ {
+  "no": 108,
+  "id": "TJA_System_Disabled_DN_107_2",
+  "priority": "Low",
+  "label": "TJASystemDisabled",
+  "dialog": ""
+ },
+ {
+  "no": 109,
+  "id": "CTS_Unavailable_DN_108_1",
+  "priority": "Low",
+  "label": "CTSUnavailable",
+  "dialog": ""
+ },
+ {
+  "no": 110,
+  "id": "TJA_Unavailable_DN_108_2",
+  "priority": "Low",
+  "label": "TJAUnavailable",
+  "dialog": ""
+ },
+ {
+  "no": 111,
+  "id": "CTS_Radar_Malfunction_DN_109_1",
+  "priority": "Low",
+  "label": "CTSRadarMalfunction",
+  "dialog": ""
+ },
+ {
+  "no": 112,
+  "id": "TJA_Radar_Malfunction_DN_109_2",
+  "priority": "Low",
+  "label": "TJARadarMalfunction",
+  "dialog": ""
+ }
+]

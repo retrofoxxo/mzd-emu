@@ -11,6 +11,11 @@ const btpairingApp = require('./uia/btpairingApp');
 const netmgmtApp = require('./uia/netmgmtApp');
 const schedmaintApp = require('./uia/schedmaintApp');
 const ecoenergyApp = require('./uia/ecoenergyApp');
+const usbaudioApp = require('./uia/usbaudioApp');
+const emnaviApp = require('./uia/emnaviApp');
+const btaudioApp = require('./uia/btaudioApp');
+const transportApp = require('./uia/transportApp');
+const warnguideApp = require('./uia/warnguideApp');
 
 // Every application, plus the common one for the shared Global.* events, owns its events: each
 // exports `events`, a table of eventId -> handler(ws, params, uiaId, eventId), like the
@@ -25,7 +30,12 @@ const applications = [
     sysupdateApp,
     btpairingApp,
     netmgmtApp,
-    vehsettingsApp
+    vehsettingsApp,
+    usbaudioApp,
+    emnaviApp,
+    btaudioApp,
+    transportApp,
+    warnguideApp
 ];
 
 function buildEventTable(modules) {

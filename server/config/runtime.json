@@ -4,5 +4,8 @@
     "appsdkPort": 2800,
     "dbapiPort": 2766,
     "controlPort": 2900,
-    "emulatorControls": false
+    "audioPort": 2950,
+    "mapTileUrl": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    "mapAttribution": "© OpenStreetMap contributors",
+    "emulatorControls": true
 }

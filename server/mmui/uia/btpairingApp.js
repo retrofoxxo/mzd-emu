@@ -3,6 +3,7 @@ const sendContextChange = protocol.sendContextChange;
 const settings = require('../services/settings');
 const navigationState = require('../state/navigationState');
 const logger = require('../../logger');
+const { getPhone } = require('../services/btPhone');
 
 function sendMsg(ws, msgId, payload) {
     const msg = JSON.stringify({
@@ -85,7 +86,8 @@ function handleCancel(ws) {
 
 // Report the emulator's mock phone to the status bar.
 function sendPhoneConnectedStatus(ws) {
-    const bluetoothOn = settings.currentSettings.bluetooth === 'On';
+    const phone = getPhone();
+    const bluetoothOn = phone.isConnected();
     ws.send(
         JSON.stringify({
             msgType: 'msg',
@@ -98,7 +100,7 @@ function sendPhoneConnectedStatus(ws) {
                         listItem: bluetoothOn
                             ? [
                                   {
-                                      itemLabel: 'Mock Phone',
+                                      itemLabel: phone.name(),
                                       status: 1,
                                       connect_disconnect_Success: 1
                                   }
@@ -115,7 +117,9 @@ function sendPhoneConnectedStatus(ws) {
             msgType: 'msg',
             uiaId: 'btpairing',
             msgId: 'SignalStrengthStatus',
-            params: { payload: { signalStrengthValue: bluetoothOn ? 4 : -1 } }
+            params: {
+                payload: { signalStrengthValue: bluetoothOn ? phone.config.signalStrength : -1 }
+            }
         })
     );
 
@@ -126,7 +130,7 @@ function sendPhoneConnectedStatus(ws) {
             msgId: 'BatteryStatus',
             params: {
                 payload: {
-                    currValue: bluetoothOn ? 4 : 0,
+                    currValue: bluetoothOn ? phone.config.batteryLevel : 0,
                     PhoneBatteryStatusAvailable: bluetoothOn
                 }
             }

@@ -1,6 +1,7 @@
 const WebSocketServer = require('ws').Server;
 const logger = require('../logger');
 const temperatureService = require('./services/temperatureService');
+const vehicleWarnings = require('./services/vehicleWarnings');
 
 // WebSocket endpoint for the emulator's own controls (the panel next to the GUI in the browser).
 // It is deliberately separate from the guiifm socket: the GUI from jci/ must only see what the
@@ -13,6 +14,22 @@ function createControlServer(port) {
         send(temperatureService.getState());
         const unsubscribe = temperatureService.onChange(send);
         ws.on('close', unsubscribe);
+
+        // The warning catalog once, then the list of active warnings with every change.
+        ws.send(
+            JSON.stringify({
+                type: 'warningCatalog',
+                catalog: vehicleWarnings.catalog.map((e) => ({
+                    no: e.no,
+                    label: e.label,
+                    priority: e.priority
+                }))
+            })
+        );
+        const sendWarnings = (state) =>
+            ws.send(JSON.stringify({ type: 'warnings', active: state.active }));
+        sendWarnings(vehicleWarnings.getState());
+        ws.on('close', vehicleWarnings.onChange(sendWarnings));
         ws.on('error', (error) => logger.error('control', 'WebSocket error: %s', error.message));
         ws.on('message', (raw) => {
             let data;
@@ -23,6 +40,10 @@ function createControlServer(port) {
             }
             if (data && data.type === 'setTemperature') {
                 temperatureService.setTemperature(data.value);
+            } else if (data && data.type === 'setWarning') {
+                vehicleWarnings.setWarning(Number(data.no), data.active === true);
+            } else if (data && data.type === 'clearWarnings') {
+                vehicleWarnings.clearAll();
             }
         });
     });

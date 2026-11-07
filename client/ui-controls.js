@@ -55,6 +55,76 @@
         return row;
     }
 
+    // Vehicle warnings: raise one from the car's warning table, clear it again.
+    var catalog = [];
+    var activeWarnings = [];
+
+    function sendControl(message) {
+        if (socket && socket.readyState === 1) {
+            socket.send(JSON.stringify(message));
+        }
+    }
+
+    function buildWarnings() {
+        var box = el('div', 'margin-top:16px;border-top:1px solid #ddd;padding-top:10px;');
+        box.appendChild(el('div', 'font-weight:bold;', 'Vehicle warnings'));
+        ui.warnSelect = el('select', 'width:100%;margin:6px 0;font-size:12px;');
+        box.appendChild(ui.warnSelect);
+        var raise = el('button', 'margin-right:6px;', 'Raise warning');
+        raise.addEventListener('click', function () {
+            sendControl({ type: 'setWarning', no: Number(ui.warnSelect.value), active: true });
+        });
+        var clear = el('button', '', 'Clear all');
+        clear.addEventListener('click', function () {
+            sendControl({ type: 'clearWarnings' });
+        });
+        box.appendChild(raise);
+        box.appendChild(clear);
+        ui.warnActive = el('div', 'margin-top:8px;font-size:12px;');
+        box.appendChild(ui.warnActive);
+        box.appendChild(
+            el(
+                'div',
+                'color:#777;font-size:11px;margin-top:4px;',
+                'High priority warnings also open the pop-up on the head unit.'
+            )
+        );
+        return box;
+    }
+
+    function renderCatalog() {
+        ui.warnSelect.textContent = '';
+        catalog.forEach(function (entry) {
+            var option = el(
+                'option',
+                '',
+                (entry.priority === 'High' ? '[High] ' : '') + entry.no + ' ' + entry.label
+            );
+            option.value = entry.no;
+            ui.warnSelect.appendChild(option);
+        });
+    }
+
+    function renderWarnings() {
+        ui.warnActive.textContent = '';
+        if (activeWarnings.length === 0) {
+            ui.warnActive.appendChild(el('div', 'color:#777;', 'No active warnings'));
+        }
+        activeWarnings.forEach(function (no) {
+            var entry = catalog.filter(function (e) {
+                return e.no === no;
+            })[0];
+            var row = el('div', 'display:flex;justify-content:space-between;margin:2px 0;');
+            row.appendChild(el('span', '', no + ' ' + (entry ? entry.label : '')));
+            var remove = el('button', 'margin-left:6px;', '×');
+            remove.addEventListener('click', function () {
+                sendControl({ type: 'setWarning', no: no, active: false });
+            });
+            row.appendChild(remove);
+            ui.warnActive.appendChild(row);
+        });
+    }
+
     function buildPanel() {
         var panel = el(
             'div',
@@ -89,6 +159,7 @@
         panel.appendChild(ui.status);
         ui.note = el('div', 'margin-top:6px;color:#666;font-size:12px;', '');
         panel.appendChild(ui.note);
+        panel.appendChild(buildWarnings());
         panel.appendChild(buildOutsideSwitch());
         ui.link = el('div', 'margin-top:14px;font-size:12px;color:#999;', 'Connecting…');
         panel.appendChild(ui.link);
@@ -166,6 +237,13 @@
             if (message.type === 'temperature') {
                 state = message.state;
                 render();
+            } else if (message.type === 'warningCatalog') {
+                catalog = message.catalog;
+                renderCatalog();
+                renderWarnings();
+            } else if (message.type === 'warnings') {
+                activeWarnings = message.active;
+                renderWarnings();
             }
         };
         socket.onclose = function () {

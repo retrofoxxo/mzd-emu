@@ -36,7 +36,7 @@ test('the server answers 404 outside the mounts and exposes only controlPort', a
         assert.equal((await fetch(base + '/server/ui-server.js')).status, 404);
         assert.equal((await fetch(base + '/emulator/ui-wayland.js')).status, 200);
         const runtime = await (await fetch(base + '/emulator/runtime.json')).json();
-        assert.deepEqual(Object.keys(runtime), ['controlPort']);
+        assert.deepEqual(Object.keys(runtime), ['controlPort', 'audioPort', 'mapTileUrl', 'mapAttribution']);
         const gui = await (await fetch(base + '/jci/gui/index.html')).text();
         assert.ok(gui.includes('/emulator/ui-wayland.js'));
     } finally {

@@ -8,6 +8,9 @@ const vehsettingsApp = require('./vehsettingsApp');
 const btpairingApp = require('./btpairingApp');
 const schedmaintApp = require('./schedmaintApp');
 const ecoenergyApp = require('./ecoenergyApp');
+const usbaudioApp = require('./usbaudioApp');
+const btaudioApp = require('./btaudioApp');
+const warnguideApp = require('./warnguideApp');
 
 // Counterpart of libjciuiacommon.so (uiaid 0): the Global.* events that every dialog shares.
 // The firmware sends them to the application that owns the open dialog. Here each application
@@ -18,7 +21,7 @@ function isCommon(uiaId) {
 }
 
 // Applications with dialogs, in the order their dialogs are tried.
-const DIALOG_OWNERS = [systemApp, sysupdateApp, syssettingsApp, vehsettingsApp, schedmaintApp];
+const DIALOG_OWNERS = [systemApp, sysupdateApp, syssettingsApp, vehsettingsApp, schedmaintApp, warnguideApp];
 
 // The handler of the first open dialog that answers `answer` ("yes" or "no"), or null.
 function findOpenDialog(answer) {
@@ -80,6 +83,9 @@ function handleTimeout(ws, _params, uiaId) {
 }
 
 function handleGoBack(ws, _params, uiaId) {
+    if (usbaudioApp.handleBack(ws) || btaudioApp.handleBack(ws)) {
+        return;
+    }
     if (schedmaintApp.dialogs.schedMaintResetConfirmActive && isCommon(uiaId)) {
         schedmaintApp.handleResetNo(ws);
         return;
@@ -132,6 +138,7 @@ const events = {
     'Global.No': handleNo,
     'Global.Cancel': handleCancel,
     'Global.GoBack': handleGoBack,
+    'Global.MenuUp': (ws) => usbaudioApp.handleBack(ws) || btaudioApp.handleBack(ws),
     Timeout: handleTimeout,
     SelectReset: handleSelectReset,
     SelectSettings: handleSelectSettings,

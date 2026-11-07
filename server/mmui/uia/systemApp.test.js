@@ -98,7 +98,7 @@ test('handleSelectApplications refreshes state and opens Applications', () => {
     assert.equal(ctxtChg.ctxtId, 'Applications');
 });
 
-test('handleSelectNavigation is a no-op (navigation is a separate, unemulated app)', () => {
+test('handleSelectNavigation needs a connection and does nothing without one', () => {
     assert.doesNotThrow(() => systemApp.handleSelectNavigation());
 });
 

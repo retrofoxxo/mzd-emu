@@ -1,0 +1,10 @@
+{
+    "phone": {
+        "name": "Mock Phone",
+        "address": "AA:BB:CC:DD:EE:01",
+        "batteryLevel": 4,
+        "signalStrength": 4,
+        "network": "Mock Network"
+    },
+    "musicDir": ""
+}

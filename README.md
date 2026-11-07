@@ -103,6 +103,112 @@ change a port.
 | `guiifmPort` | `2700`  | WebSocket transport — GUI context/focus |
 | `appsdkPort` | `2800`  | WebSocket transport — App SDK           |
 | `dbapiPort`  | `2766`  | WebSocket transport — DB API            |
+| `audioPort`  | `2950`  | WebSocket to the browser that plays the USB music |
+| `mapTileUrl` | OpenStreetMap | Tile server of the navigation map (`{z}/{x}/{y}`); empty = no map tiles |
+| `mapAttribution` | © OpenStreetMap contributors | Credit drawn on the map |
+
+### USB drive (music)
+
+A directory of your computer plays the role of a USB flash drive plugged into
+USB port A. [`server/config/usb.json`](server/config/usb.json) names it:
+
+```json
+{ "musicDir": "usb", "deviceName": "USB FLASH DRIVE" }
+```
+
+`musicDir` is relative to the project root (or absolute). The environment
+variable `MZD_USB_DIR` overrides it, for example
+`MZD_USB_DIR=~/Music npm start` (use an absolute path; `~` is expanded by the
+shell). If the directory does not exist the USB entry in the Entertainment menu
+stays unavailable.
+
+In the GUI choose **Entertainment → USB**. Playback starts with the first file
+and Now Playing shows the title, artist, album and cover from the file's tags
+(ID3, FLAC and MP4 tags are read; otherwise the file name is shown). **Folder**
+in the source menu browses the directory tree. Play/pause, next/previous (hold
+to wind), the progress slider, repeat and shuffle work. Music keeps playing when
+you leave the USB screens. Supported files: mp3, m4a, aac, wav, flac, ogg, opus
+(whatever your browser can decode). The directory is read when the servers
+start, so restart them after adding files.
+
+Only the folder view exists. The Playlist, Artist, Album, Song and Genre
+entries stay greyed out because the emulated drive reports that metadata
+browsing is not possible. The sound is made by the browser tab that shows the
+GUI; the browser may need one click on the page before it lets sound play.
+
+### Vehicle warnings
+
+**Applications → Warning Guidance** shows the warnings the car reports, with the
+counter next to it in the Applications menu. The 111 warnings, their priority,
+icons and English texts are the firmware's own table. A high priority warning
+(for example Engine Coolant Temperature High) also opens the pop-up on whatever
+screen is showing; OK returns to that screen.
+
+Choose which warnings are active in one of two ways:
+
+- at start, in [`server/config/warnings.json`](server/config/warnings.json):
+  `{ "active": [41, 80] }` (warning numbers, see
+  `server/vehicle/warningCatalog.json`);
+- while running, with the **Vehicle warnings** section of the emulator controls
+  panel (set `emulatorControls` to `true` in `server/config/runtime.json`): pick a
+  warning, **Raise warning**, remove it with the × or **Clear all**.
+
+The pop-up is skipped while the boot video or the disclaimer is showing; the
+warning is still in the list.
+
+### Bluetooth (virtual phone)
+
+A browser cannot act as a car's Bluetooth hands-free unit: Web Bluetooth only
+speaks BLE, not the classic profiles (A2DP audio, HFP calls, PBAP phonebook) a
+phone uses with a car. So the emulator provides a **virtual phone** that is
+paired with the head unit and connected whenever Bluetooth is switched on in the
+settings. [`server/config/bluetooth.json`](server/config/bluetooth.json)
+describes it:
+
+```json
+{
+    "phone": { "name": "Mock Phone", "address": "AA:BB:CC:DD:EE:01",
+               "batteryLevel": 4, "signalStrength": 4, "network": "Mock Network" },
+    "musicDir": ""
+}
+```
+
+- **Status:** the phone's name appears in the paired devices list and on the
+  Bluetooth entry of the Entertainment menu; the status bar shows its battery
+  and signal (0 to 5).
+- **Bluetooth audio:** **Entertainment → Bluetooth** plays the phone's music with
+  title, artist, album, cover, progress bar, play/pause, next/previous (hold to
+  wind), repeat and shuffle. `musicDir` is the phone's music directory; empty
+  means the same music as the USB drive (`MZD_BT_MUSIC_DIR` overrides it). With
+  Bluetooth switched off the source shows its "disconnected" screen.
+- **One speaker:** USB and Bluetooth share it. Starting one pauses the other,
+  and the play/next/previous keys act on the source that plays.
+
+Not emulated yet: phone calls, the phone book and call history, text messages,
+and the pairing flows (add, disconnect, delete a device). The paired devices list
+and the Bluetooth settings screens still work as before.
+
+### Navigation (browser GPS)
+
+Choosing **Navigation** on the Home screen starts the browser's GPS (the browser
+asks for location permission) and opens the map screen, if the vehicle profile
+has `navigationSdCard` set to `On`:
+
+- a map of the area around you (OpenStreetMap tiles) with your position and, when
+  you move, your heading. Drag to pan, scroll to zoom, double-click to follow your
+  position again;
+- the firmware's own Compass screen is filled with your latitude, longitude,
+  altitude (in the unit of the distance setting) and heading. It opens on the
+  `SelectCompass` event of the `emnavi` application.
+
+The browser only gives location to `https` pages and to `localhost`, so open the
+emulator as `http://localhost:8080`, not by IP address. The map tiles need an
+internet connection; the public OpenStreetMap server is meant for light use, so
+point `mapTileUrl` at your own tile source for anything heavier.
+
+There is no route planning, address search or turn-by-turn guidance: on the car
+those are done by the separate navigation software, which is not part of the
+firmware dump. The map shows where you are.
 
 ### Vehicle profile
 

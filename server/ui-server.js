@@ -4,6 +4,7 @@ const path = require('path');
 const logger = require('./logger');
 const runtime = require('./config/runtime.json');
 const { openBrowser } = require('./launcher/open-browser');
+const { createMediaHandler } = require('./usb/media');
 
 const CONFIG = {
     port: runtime.uiPort,
@@ -21,7 +22,11 @@ const CONFIG = {
     polyfillsFile: path.join(__dirname, '..', 'client', 'ui-polyfills.html'),
     injectBeforeMarker: '</head>',
     // Added to the injected HTML only when runtime.json enables the emulator controls.
-    controlsScript: '<script src="/emulator/ui-controls.js"></script>\n'
+    controlsScript: '<script src="/emulator/ui-controls.js"></script>\n',
+    // Always added: plays the music of the USB drive (see client/ui-usb-audio.js).
+    usbAudioScript: '<script src="/emulator/ui-usb-audio.js"></script>\n',
+    // Always added: the browser's GPS and the map layer of the navigation screen.
+    navigationScript: '<script src="/emulator/ui-navigation.js"></script>\n'
 };
 
 const MIME_TYPES = {
@@ -53,6 +58,8 @@ function getContentType(filePath) {
 function injectPolyfills(htmlText) {
     const polyfillSnippet =
         fs.readFileSync(CONFIG.polyfillsFile, 'utf8') +
+        CONFIG.usbAudioScript +
+        CONFIG.navigationScript +
         (runtime.emulatorControls ? CONFIG.controlsScript : '');
     const markerIndex = htmlText.toLowerCase().indexOf(CONFIG.injectBeforeMarker.toLowerCase());
     if (markerIndex === -1) {
@@ -79,11 +86,20 @@ function resolveRequestPath(urlPath) {
 
 // The browser needs only the control port from the runtime settings, not the whole file.
 function clientRuntime() {
-    return JSON.stringify({ controlPort: runtime.controlPort });
+    return JSON.stringify({
+        controlPort: runtime.controlPort,
+        audioPort: runtime.audioPort,
+        mapTileUrl: runtime.mapTileUrl,
+        mapAttribution: runtime.mapAttribution
+    });
 }
 
-function createServer() {
+function createServer(handleMedia = createMediaHandler()) {
     return http.createServer(function (req, res) {
+        // The USB drive's music and cover pictures come from the configured directory, not jci/.
+        if (handleMedia(req, res)) {
+            return;
+        }
         const urlPath = req.url;
         if (urlPath.split('?')[0] === CONFIG.runtimePath) {
             res.writeHead(200, {

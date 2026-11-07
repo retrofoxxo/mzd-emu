@@ -1,6 +1,7 @@
 const protocol = require('../protocol');
 const sendContextChange = protocol.sendContextChange;
 const navigationState = require('../state/navigationState');
+const usbaudioApp = require('./usbaudioApp');
 const logger = require('../../logger');
 
 const PAGE_SEQUENCE = ['ControlStatus', 'Effectiveness', 'FuelConsumption'];
@@ -140,6 +141,9 @@ function handleSelectSettings(ws) {
 }
 
 function handleSelectSourceMenu(ws) {
+    if (usbaudioApp.handleSourceMenu(ws)) {
+        return;
+    }
     sendContextChange(ws, 'system', 'Applications');
 }
 

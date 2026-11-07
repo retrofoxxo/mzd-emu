@@ -31,9 +31,11 @@ authoritative answer to "what happens when event X arrives in context Y".
 | ----------------------------------- | ----------------------------------------------------- | --------------------------------------------- |
 | `uiPort` 8080                       | `ui-server.js` serves `jci/gui` and the browser shims | Opera loading `/jci/gui/index.html`           |
 | `guiifmPort` 2700                   | `mmui-server.js` GUI socket                           | GUI interface of `svcjcimmui.so` (`GUIIFM_*`) |
-| `appsdkPort` 2800                   | passive endpoint                                      | `svcjciappsdk.so`                             |
+| `appsdkPort` 2800                   | `mmui/services/usbmsService.js` (`usbms` browsing only) | `svcjciappsdk.so`                           |
 | `dbapiPort` 2766                    | passive endpoint                                      | `svcjcidbapi.so`                              |
 | `controlPort` 2900                  | `mmui/controlPanel.js`                                | none, emulator only                           |
+| `uiPort` 8080 (browser)             | `client/ui-navigation.js` (GPS and map layer)         | NNG navigation software, `NNG_NAVI_MAP1` layer |
+| `audioPort` 2950                    | `mmui/services/speakerServer.js` (browser speaker)    | audio output of the head unit                 |
 
 ## File map
 

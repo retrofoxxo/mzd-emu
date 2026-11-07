@@ -5,6 +5,9 @@ const startup = require('./mmui/services/startup');
 const temperatureService = require('./mmui/services/temperatureService');
 const { createControlServer } = require('./mmui/controlPanel');
 const handleMmuiEvent = require('./mmui/dispatcher');
+const usbmsService = require('./mmui/services/usbmsService');
+const vehicleWarnings = require('./mmui/services/vehicleWarnings');
+const { createSpeakerServer } = require('./mmui/services/speakerServer');
 
 const runtime = require('./config/runtime.json');
 
@@ -12,7 +15,8 @@ const PORTS = {
     guiifm: runtime.guiifmPort,
     appsdk: runtime.appsdkPort,
     dbapi: runtime.dbapiPort,
-    control: runtime.controlPort
+    control: runtime.controlPort,
+    audio: runtime.audioPort
 };
 
 function parseMessage(message, scope) {
@@ -47,6 +51,7 @@ function createGuiifmServer() {
         if (runtime.emulatorControls) {
             temperatureService.attach(ws);
         }
+        vehicleWarnings.attach(ws);
         startup.sendCurrentTimeEpoch(ws);
 
         const clockSyncIntervalId =
@@ -81,6 +86,27 @@ function createGuiifmServer() {
     return server;
 }
 
+// The AppSDK socket answers the USB audio browsing requests (usbms service); the rest of the
+// AppSDK is not emulated.
+function attachAppsdkEndpoint(server) {
+    server.on('connection', (ws) => {
+        logger.debug('appsdk', 'Client connected');
+        ws.on('error', (error) => logger.error('appsdk', 'WebSocket error: %s', error.message));
+        ws.on('close', () => logger.debug('appsdk', 'Client disconnected'));
+        ws.on('message', (message) => {
+            const data = parseMessage(message, 'appsdk');
+            if (!data) {
+                return;
+            }
+            logger.debug('appsdk', 'Request %s.%s', data.serviceName, data.methodName);
+            const reply = usbmsService.handleRequest(data);
+            if (reply) {
+                ws.send(JSON.stringify(reply));
+            }
+        });
+    });
+}
+
 // The GUI socket and the emulator controls matter to the user; the other two are never used.
 const QUIET_SCOPES = ['appsdk', 'dbapi'];
 
@@ -93,7 +119,8 @@ function listen(server, scope, port) {
 const servers = [
     { scope: 'guiifm', server: createGuiifmServer(), port: PORTS.guiifm },
     { scope: 'appsdk', server: new WebSocketServer({ port: PORTS.appsdk }), port: PORTS.appsdk },
-    { scope: 'dbapi', server: new WebSocketServer({ port: PORTS.dbapi }), port: PORTS.dbapi }
+    { scope: 'dbapi', server: new WebSocketServer({ port: PORTS.dbapi }), port: PORTS.dbapi },
+    { scope: 'audio', server: createSpeakerServer(PORTS.audio), port: PORTS.audio }
 ];
 
 // The emulator's own controls (temperature slider) are off unless runtime.json asks for them.
@@ -105,7 +132,7 @@ if (runtime.emulatorControls) {
     });
 }
 
-attachPassiveEndpoint(servers[1].server, 'appsdk');
+attachAppsdkEndpoint(servers[1].server);
 attachPassiveEndpoint(servers[2].server, 'dbapi');
 servers.forEach(({ server, scope, port }) => listen(server, scope, port));
 

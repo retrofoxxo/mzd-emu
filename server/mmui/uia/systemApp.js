@@ -12,6 +12,11 @@ const schedmaintApp = require('./schedmaintApp');
 const ecoenergyApp = require('./ecoenergyApp');
 const logger = require('../../logger');
 const coldStart = require('../services/coldStart');
+const usbaudioApp = require('./usbaudioApp');
+const btaudioApp = require('./btaudioApp');
+const emnaviApp = require('./emnaviApp');
+const warnguideApp = require('./warnguideApp');
+const vehicleWarnings = require('../services/vehicleWarnings');
 
 // Dialog state of this application (what the shared Global.Yes / Global.No answer, see commonApp.js).
 const dialogs = {
@@ -182,6 +187,13 @@ function sendApplicationStatus(ws, appName, visible, available) {
     sendStatusMenu(ws, appName, available);
 }
 
+// The number next to Warning Guidance in the Applications menu.
+function sendWarningCount(ws) {
+    sendSystemMsg(ws, 'WarningStatusCount', {
+        warningcount: vehicleWarnings.activeNumbers().length
+    });
+}
+
 function sendApplicationsState(ws) {
     sendSyssettingsMsg(ws, 'VehicleConfigData', { evData: 'New' });
 
@@ -193,6 +205,8 @@ function sendApplicationsState(ws) {
     sendApplicationStatus(ws, 'vsm', false, false);
     sendStatusMenu(ws, 'vehicleStatus', true);
 
+    sendEntertainmentStatus(ws);
+
     sendApplicationStatus(ws, 'carplay', true, false);
     sendApplicationStatus(ws, 'androidauto', true, false);
 
@@ -203,7 +217,7 @@ function sendApplicationsState(ws) {
     sendApplicationStatus(ws, 'vdt_settings', false, false);
     sendApplicationStatus(ws, 'vdt', false, false);
 
-    sendSystemMsg(ws, 'WarningStatusCount', { warningcount: 0 });
+    sendWarningCount(ws);
     sendSystemMsg(ws, 'StatusUpdateSchedMaint', { due: false });
 }
 
@@ -217,14 +231,21 @@ function handleSelectVehicleStatusMonitor(ws) {
 }
 
 function handleSelectWarnGuide(ws) {
-    sendContextChange(ws, 'warnguide', 'WarningList');
+    warnguideApp.handleSelectWarnGuide(ws);
 }
 
 function handleSelectSchedMaint(ws) {
     schedmaintApp.handleSelectSchedMaint(ws);
 }
 
+// The audio sources of the Entertainment menu: whether USB and Bluetooth are available.
+function sendEntertainmentStatus(ws) {
+    usbaudioApp.sendMenuStatus(ws);
+    btaudioApp.sendMenuStatus(ws);
+}
+
 function handleSelectEntertainment(ws) {
+    sendEntertainmentStatus(ws);
     sendContextChange(ws, 'system', 'Entertainment');
 }
 
@@ -232,8 +253,12 @@ function handleSelectCommunication(ws) {
     sendContextChange(ws, 'system', 'Communication');
 }
 
-// Navigation belongs to the separate emnavi app, which is not emulated.
-function handleSelectNavigation(_ws) {}
+// The map screen of the navigation system, only when the vehicle has the navigation SD card.
+function handleSelectNavigation(ws) {
+    if (ws && settings.HARDWARE_CONFIG.navigationSdCard === 'On') {
+        emnaviApp.handleSelectNavigation(ws);
+    }
+}
 
 // Settings opens directly on the first available tab; there is no system/Settings context.
 function handleSelectSettings(ws) {
@@ -339,6 +364,8 @@ module.exports = {
     handleSelectEntertainment: handleSelectEntertainment,
     handleSelectCommunication: handleSelectCommunication,
     handleSelectNavigation: handleSelectNavigation,
+    sendEntertainmentStatus: sendEntertainmentStatus,
+    sendWarningCount: sendWarningCount,
     handleSelectSettings: handleSelectSettings,
     handleIntentSettingsTab: handleIntentSettingsTab
 };
