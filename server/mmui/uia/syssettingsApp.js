@@ -3,6 +3,8 @@ const sendContextChange = protocol.sendContextChange;
 const navigationState = require('../state/navigationState');
 const settings = require('../services/settings');
 const temperatureService = require('../services/temperatureService');
+const display = require('../services/display');
+const speaker = require('../services/speaker');
 const logger = require('../../logger');
 
 // Dialog state of this application (what the shared Global.Yes / Global.No answer, see commonApp.js).
@@ -219,6 +221,8 @@ function handleSetUnitsDistance(params) {
     if (params && params.payload && params.payload.unitsDistance) {
         settings.currentSettings.distanceUnit = params.payload.unitsDistance;
         settings.saveUserSettings();
+        // the navigation screen in the browser speaks and shows distances in this unit
+        speaker.send({ cmd: 'units', distance: params.payload.unitsDistance });
     }
 }
 
@@ -402,9 +406,13 @@ function handleFactoryResetYes(ws) {
 const events = {
     // The firmware context is literally named SelectTimeZone.
     SelectTimeZone: (ws, _params, uiaId) => sendContextChange(ws, uiaId, 'SelectTimeZone'),
-    // These are native commands, not GUI contexts.
-    SelectDisplayOff: () => {},
-    SelectDisplayClock: () => {},
+    // Backlight off, or off with the clock lit (services/display.js); a touch on the off screen
+    // wakes the display, and a notification lights it while it is up.
+    SelectDisplayOff: (ws) => display.turnOff(ws),
+    SelectDisplayClock: (ws) => display.showClock(ws),
+    DisplayOffGUIActivity: (ws) => display.wake(ws),
+    DisplayOffNotificationEvent: (_ws, params) =>
+        display.notificationActive(params && params.payload && params.payload.notificationActive),
     // These rows are visible but disabled in the vehicle configuration.
     SetAppleCarPlay: (ws) => sendDevicesState(ws),
     SetAndroidAuto: (ws) => sendDevicesState(ws),

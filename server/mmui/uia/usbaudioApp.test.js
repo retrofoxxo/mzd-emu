@@ -187,3 +187,15 @@ test('SelectSourceMenu from Now Playing opens Entertainment', () => {
     send(ws, 'SelectSourceMenu');
     assert.equal(lastCtx(ws).ctxtId, 'Entertainment');
 });
+
+test('pressing and releasing the play button does not change playback; the click does', () => {
+    const { ws, drive } = setup();
+    send(ws, 'SelectUSBA');
+    send(ws, 'Global.Pause');
+    assert.equal(drive.player.snapshot().state, 'PAUSE');
+    send(ws, 'PlayPausePress');
+    assert.equal(drive.player.snapshot().state, 'PAUSE');
+    send(ws, 'PlayPauseRelease');
+    handleMmuiEvent(ws, 'Common', 'Global.Resume'); // the click of the GUI
+    assert.equal(drive.player.snapshot().state, 'PLAY');
+});

@@ -102,7 +102,7 @@
 
     // ---------------------------------------------------------------- state
 
-    var runtime = { mapTileUrl: '', mapAttribution: '' };
+    var runtime = { mapTileUrl: '', mapAttribution: '', routingUrl: '', geocodeUrl: '' };
     var view = {
         fix: null, // { latitude, longitude, heading, speed, accuracy } or null
         hasCenter: false, // a position was known once, so the map around it can be drawn
@@ -112,6 +112,12 @@
         follow: true,
         visible: false
     };
+    // Hooks for the route layer (ui-navigation-route.js), which draws on this map.
+    var layers = { route: [], hud: [] };
+    var fixListeners = [];
+    var visibleListeners = [];
+    var pointerHandlers = [];
+    var contextHandlers = [];
     var tiles = {}; // url -> { img, loaded }
     var tileOrder = [];
     var canvas = null;
@@ -153,6 +159,9 @@
     }
 
     function onPosition(position) {
+        if (view.simulating) {
+            return; // a simulated drive replaces the real position
+        }
         var c = position.coords;
         var fix = {
             valid: true,
@@ -163,16 +172,27 @@
             speed: typeof c.speed === 'number' && !isNaN(c.speed) ? c.speed : null,
             accuracy: typeof c.accuracy === 'number' ? c.accuracy : null
         };
+        handleFix(fix);
+    }
+
+    // A position, from the GPS or from the drive simulation.
+    function handleFix(fix) {
         view.fix = fix;
         if (view.follow || !view.hasCenter) {
             view.hasCenter = true;
             view.center = { lat: fix.latitude, lon: fix.longitude };
         }
         queueFix(fix);
+        fixListeners.forEach(function (listener) {
+            listener(fix);
+        });
         markDirty();
     }
 
     function onPositionError(error) {
+        if (view.simulating) {
+            return;
+        }
         view.fix = null;
         view.status =
             error && error.code === 1
@@ -249,37 +269,31 @@
         var x = point.x - origin.x + WIDTH / 2;
         var y = point.y - origin.y + HEIGHT / 2;
         var radius = fix.accuracy ? fix.accuracy / metersPerPixel(fix.latitude, view.zoom) : 0;
-        if (radius > 12) {
+        if (radius > 14) {
             ctx.beginPath();
             ctx.arc(x, y, Math.min(radius, 400), 0, 2 * Math.PI);
-            ctx.fillStyle = 'rgba(30,120,255,0.15)';
+            ctx.fillStyle = 'rgba(255,210,0,0.14)';
             ctx.fill();
         }
+        // The position arrow (not the Mazda vehicle symbol: the skin's images are in a format
+        // this emulator cannot read): the skin's yellow with a dark outline. It points the way
+        // the car moves, and north while there is no heading.
         var moving = typeof fix.speed === 'number' && fix.speed >= 1 && typeof fix.heading === 'number';
         ctx.save();
         ctx.translate(x, y);
-        if (moving) {
-            ctx.rotate((fix.heading * Math.PI) / 180);
-            ctx.beginPath();
-            ctx.moveTo(0, -16);
-            ctx.lineTo(11, 12);
-            ctx.lineTo(0, 6);
-            ctx.lineTo(-11, 12);
-            ctx.closePath();
-            ctx.fillStyle = '#1e78ff';
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.fill();
-            ctx.stroke();
-        } else {
-            ctx.beginPath();
-            ctx.arc(0, 0, 9, 0, 2 * Math.PI);
-            ctx.fillStyle = '#1e78ff';
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
-            ctx.fill();
-            ctx.stroke();
-        }
+        ctx.rotate(moving ? (fix.heading * Math.PI) / 180 : 0);
+        ctx.beginPath();
+        ctx.moveTo(0, -20);
+        ctx.lineTo(14, 16);
+        ctx.lineTo(0, 8);
+        ctx.lineTo(-14, 16);
+        ctx.closePath();
+        ctx.fillStyle = moving ? '#ffd200' : 'rgba(255,210,0,0.75)';
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+        ctx.fill();
         ctx.restore();
     }
 
@@ -303,15 +317,21 @@
                 }
             );
         }
+        layers.route.forEach(function (layer) {
+            layer(ctx);
+        });
         if (view.fix) {
             drawVehicle(view.fix);
         } else {
             drawText(view.status, WIDTH / 2, HEIGHT / 2, 'center');
         }
+        layers.hud.forEach(function (layer) {
+            layer(ctx);
+        });
         if (runtime.mapAttribution) {
             drawText(runtime.mapAttribution, WIDTH - 6, HEIGHT - 6, 'right');
         }
-        if (!view.follow) {
+        if (!view.follow && layers.hud.length === 0) {
             drawText('Double-click to follow your position', 6, HEIGHT - 6, 'left');
         }
     }
@@ -337,6 +357,9 @@
         }
         view.visible = visible;
         canvas.style.display = visible ? 'block' : 'none';
+        visibleListeners.forEach(function (listener) {
+            listener(visible);
+        });
         if (visible) {
             markDirty();
         }
@@ -357,9 +380,26 @@
     function installInput() {
         var dragging = null;
         root.document.addEventListener('mousedown', function (event) {
-            if (onMapArea(event)) {
-                dragging = { x: event.clientX, y: event.clientY };
+            if (!onMapArea(event)) {
+                return;
             }
+            // buttons of the route layer come first; the rest of the map is dragged
+            for (var i = 0; i < pointerHandlers.length; i++) {
+                if (pointerHandlers[i](event.clientX, event.clientY)) {
+                    dragging = null;
+                    return;
+                }
+            }
+            dragging = { x: event.clientX, y: event.clientY };
+        });
+        root.document.addEventListener('contextmenu', function (event) {
+            if (!onMapArea(event)) {
+                return;
+            }
+            event.preventDefault();
+            contextHandlers.forEach(function (handler) {
+                handler(event.clientX, event.clientY);
+            });
         });
         root.document.addEventListener('mousemove', function (event) {
             if (!dragging) {
@@ -437,6 +477,40 @@
         })();
     }
 
+    // What the route layer builds on (ui-navigation-route.js).
+    root.MzdNavMap = {
+        WIDTH: WIDTH,
+        HEIGHT: HEIGHT,
+        view: view,
+        runtime: runtime,
+        layers: layers,
+        markDirty: markDirty,
+        handleFix: handleFix,
+        onFix: function (listener) { fixListeners.push(listener); },
+        onVisible: function (listener) { visibleListeners.push(listener); },
+        onPointer: function (handler) { pointerHandlers.push(handler); },
+        onContext: function (handler) { contextHandlers.push(handler); },
+        startGps: startGps,
+        toScreen: function (lat, lon) {
+            var point = project(lat, lon, view.zoom);
+            var origin = project(view.center.lat, view.center.lon, view.zoom);
+            return { x: point.x - origin.x + WIDTH / 2, y: point.y - origin.y + HEIGHT / 2 };
+        },
+        toLatLon: function (x, y) {
+            var origin = project(view.center.lat, view.center.lon, view.zoom);
+            return unproject(origin.x + x - WIDTH / 2, origin.y + y - HEIGHT / 2, view.zoom);
+        },
+        setCenter: function (lat, lon) {
+            view.center = { lat: lat, lon: lon };
+            view.hasCenter = true;
+            markDirty();
+        },
+        setZoom: function (zoom) {
+            view.zoom = clamp(zoom, MIN_ZOOM, MAX_ZOOM);
+            markDirty();
+        }
+    };
+
     root.document.addEventListener('DOMContentLoaded', function () {
         createCanvas();
         installInput();
@@ -449,6 +523,8 @@
             .then(function (config) {
                 runtime.mapTileUrl = config.mapTileUrl || '';
                 runtime.mapAttribution = config.mapAttribution || '';
+                runtime.routingUrl = config.routingUrl || '';
+                runtime.geocodeUrl = config.geocodeUrl || '';
                 markDirty();
             })
             .catch(function () {});

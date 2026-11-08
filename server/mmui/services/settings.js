@@ -453,7 +453,7 @@ const DEFAULT_SETTINGS = {
     soundAudioPilot: 'Off',
 
     // One of: "On" | "Off". Always shown regardless of vehicleType/Bose.
-    soundBeep: 'Off'
+    soundBeep: 'On'
 };
 
 // ---------------------------------------------------------------------------

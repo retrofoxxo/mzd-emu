@@ -414,9 +414,9 @@ const events = {
         const percent = params && params.payload ? params.payload.percent : null;
         withPlayer((player) => player.seekPercent(percent))();
     },
-    PlayPausePress: withPlayer((player) =>
-        player.snapshot().state === STATE.PLAY ? player.pause() : player.resume()
-    ),
+    // Press and release only animate the button; the click sends Global.Resume / Global.Pause
+    // (transportApp.js). Acting on the press as well would undo the click.
+    PlayPausePress: () => {},
     PlayPauseRelease: () => {}
 };
 

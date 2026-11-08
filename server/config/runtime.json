@@ -7,5 +7,7 @@
     "audioPort": 2950,
     "mapTileUrl": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
     "mapAttribution": "© OpenStreetMap contributors",
-    "emulatorControls": true
+    "routingUrl": "https://router.project-osrm.org",
+    "geocodeUrl": "https://nominatim.openstreetmap.org",
+    "emulatorControls": false
 }

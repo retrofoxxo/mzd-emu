@@ -2,6 +2,7 @@ const WebSocketServer = require('ws').Server;
 const logger = require('../../logger');
 const speaker = require('./speaker');
 const audioFocus = require('./audioFocus');
+const settings = require('./settings');
 
 // WebSocket to the browser that makes the sound (client/ui-usb-audio.js). Commands go to the
 // newest connected browser only, so a second tab does not play the same music twice.
@@ -25,6 +26,8 @@ function createSpeakerServer(port) {
         logger.debug('audio', 'Browser speaker connected');
         // A reloaded page picks the music up where it was.
         audioFocus.resync();
+        // the distance unit, for the guidance of the navigation screen
+        ws.send(JSON.stringify({ cmd: 'units', distance: settings.currentSettings.distanceUnit }));
         ws.on('error', (error) => logger.error('audio', 'WebSocket error: %s', error.message));
         ws.on('close', () => {
             if (active === ws) {

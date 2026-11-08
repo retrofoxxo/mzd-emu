@@ -16,6 +16,7 @@ const usbaudioApp = require('./usbaudioApp');
 const btaudioApp = require('./btaudioApp');
 const emnaviApp = require('./emnaviApp');
 const warnguideApp = require('./warnguideApp');
+const speaker = require('../services/speaker');
 const vehicleWarnings = require('../services/vehicleWarnings');
 
 // Dialog state of this application (what the shared Global.Yes / Global.No answer, see commonApp.js).
@@ -254,6 +255,16 @@ function handleSelectCommunication(ws) {
 }
 
 // The map screen of the navigation system, only when the vehicle has the navigation SD card.
+// The GUI asks for a touch / key beep (common.beep). The hardware makes it only when the Beep
+// setting (Settings > Sound) is on; the browser plays it over the music, as the amplifier does.
+function handlePlayAudioBeep(_ws, params) {
+    if (settings.currentSettings.soundBeep !== 'On') {
+        return;
+    }
+    const payload = (params && params.payload) || {};
+    speaker.send({ cmd: 'beep', pressType: payload.pressType === 'Long' ? 'Long' : 'Short' });
+}
+
 function handleSelectNavigation(ws) {
     if (ws && settings.HARDWARE_CONFIG.navigationSdCard === 'On') {
         emnaviApp.handleSelectNavigation(ws);
@@ -328,6 +339,7 @@ const events = {
     SelectEntertainment: (ws) => handleSelectEntertainment(ws),
     SelectCommunication: (ws) => handleSelectCommunication(ws),
     SelectNavigation: (ws) => handleSelectNavigation(ws),
+    PlayAudioBeep: (ws, params) => handlePlayAudioBeep(ws, params),
     SelectEcoEnergy: (ws) => handleSelectEcoEnergy(ws),
     SelectVehicleStatusMonitor: (ws) => handleSelectVehicleStatusMonitor(ws),
     SelectWarnGuide: (ws) => handleSelectWarnGuide(ws),

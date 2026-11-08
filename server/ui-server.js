@@ -26,7 +26,10 @@ const CONFIG = {
     // Always added: plays the music of the USB drive (see client/ui-usb-audio.js).
     usbAudioScript: '<script src="/emulator/ui-usb-audio.js"></script>\n',
     // Always added: the browser's GPS and the map layer of the navigation screen.
-    navigationScript: '<script src="/emulator/ui-navigation.js"></script>\n'
+    navigationScript:
+        '<script src="/emulator/nav-route.js"></script>\n' +
+        '<script src="/emulator/ui-navigation.js"></script>\n' +
+        '<script src="/emulator/ui-navigation-route.js"></script>\n'
 };
 
 const MIME_TYPES = {
@@ -90,7 +93,9 @@ function clientRuntime() {
         controlPort: runtime.controlPort,
         audioPort: runtime.audioPort,
         mapTileUrl: runtime.mapTileUrl,
-        mapAttribution: runtime.mapAttribution
+        mapAttribution: runtime.mapAttribution,
+        routingUrl: runtime.routingUrl,
+        geocodeUrl: runtime.geocodeUrl
     });
 }
 

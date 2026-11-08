@@ -236,11 +236,13 @@ test('SelectTimeZone opens the firmware-named SelectTimeZone context as-is', () 
     assert.equal(ctxtChg.ctxtId, 'SelectTimeZone');
 });
 
-test('SelectDisplayOff/SelectDisplayClock are native no-ops', () => {
+test('SelectDisplayOff/SelectDisplayClock open the off screen', () => {
     const ws = createMockWs();
     dispatcher(ws, 'syssettings', 'SelectDisplayOff', {});
     dispatcher(ws, 'syssettings', 'SelectDisplayClock', {});
-    assert.equal(ws.messages.length, 0);
+    const contexts = ws.messages.filter((m) => m.msgType === 'ctxtChg');
+    assert.equal(contexts.length, 2);
+    assert.ok(contexts.every((m) => m.uiaId === 'system' && m.ctxtId === 'DisplayOff'));
 });
 
 test('buildEventTable refuses an event claimed by two applications', () => {
@@ -274,9 +276,6 @@ test('events moved to application tables keep their behavior', () => {
     dispatcher(timeZone, 'syssettings', 'SelectTimeZone', {});
     assert.equal(timeZone.messages.find((m) => m.msgType === 'ctxtChg').ctxtId, 'SelectTimeZone');
 
-    const nativeCommand = createMockWs();
-    dispatcher(nativeCommand, 'syssettings', 'SelectDisplayOff', {});
-    assert.equal(nativeCommand.messages.length, 0);
 
     const devices = createMockWs();
     dispatcher(devices, 'syssettings', 'SetAppleCarPlay', {});
