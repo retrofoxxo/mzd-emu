@@ -106,6 +106,8 @@ change a port.
 | `audioPort`  | `2950`  | WebSocket to the browser that plays the USB music |
 | `mapTileUrl` | OpenStreetMap | Tile server of the navigation map (`{z}/{x}/{y}`); empty = no map tiles |
 | `mapAttribution` | © OpenStreetMap contributors | Credit drawn on the map |
+| `routingUrl` | OSRM demo server | Route service of the navigation screen; empty = no routing |
+| `geocodeUrl` | Nominatim | Destination search of the navigation screen; empty = no search |
 
 ### USB drive (music)
 
@@ -135,6 +137,19 @@ Only the folder view exists. The Playlist, Artist, Album, Song and Genre
 entries stay greyed out because the emulated drive reports that metadata
 browsing is not possible. The sound is made by the browser tab that shows the
 GUI; the browser may need one click on the page before it lets sound play.
+
+### Display off and system sounds
+
+- **Settings → Display → Turn display off** blacks out the screen; **Turn display
+  off and show clock** leaves only the clock. A mouse click (or a key) on the dark
+  screen brings back the screen you left, and a notification lights the display
+  while it is up.
+- **System sounds:** the touch and key beeps are played in the browser, over the
+  music, when the **Beep** setting (Settings → Sound) is on. It is on by default.
+  On the car the amplifier makes these tones and the firmware holds no sample of
+  them, so the tones here (a short and a long beep) only approximate them.
+  Alert tones of the instrument cluster (turn signals, door chimes) belong to the
+  car, not to the head unit, and are not played.
 
 ### Vehicle warnings
 
@@ -188,27 +203,50 @@ Not emulated yet: phone calls, the phone book and call history, text messages,
 and the pairing flows (add, disconnect, delete a device). The paired devices list
 and the Bluetooth settings screens still work as before.
 
-### Navigation (browser GPS)
+### Navigation (browser GPS, routing and guidance)
 
 Choosing **Navigation** on the Home screen starts the browser's GPS (the browser
 asks for location permission) and opens the map screen, if the vehicle profile
 has `navigationSdCard` set to `On`:
 
-- a map of the area around you (OpenStreetMap tiles) with your position and, when
-  you move, your heading. Drag to pan, scroll to zoom, double-click to follow your
-  position again;
-- the firmware's own Compass screen is filled with your latitude, longitude,
-  altitude (in the unit of the distance setting) and heading. It opens on the
-  `SelectCompass` event of the `emnavi` application.
+- **Map:** OpenStreetMap tiles around you, with a position arrow. Drag to pan,
+  scroll to zoom, use the **+**, **-** and **GPS** buttons (GPS follows your
+  position again).
+- **Destination:** the **Destination** button opens a search box (press Enter or
+  **Search**; the geocoder's usage policy forbids search-as-you-type). Pick a
+  result and confirm with **Start**. A right click on the map picks that spot.
+- **Guidance:** the route is drawn on the map; the next manoeuvre, the distance
+  to it, the time and distance left and the arrival time are shown. The position
+  is followed with the GPS; a position away from the route for three fixes
+  calculates a new route; arriving ends the guidance. Prompts are spoken with the
+  browser's speech synthesis (**Voice** switches them off), in the unit of the
+  distance setting.
+- **Simulate:** drives the route at about 50 km/h without a GPS, as the navigation
+  software's own simulator does.
+- **Compass:** the firmware's Compass screen is filled with your latitude,
+  longitude, altitude and heading (the `SelectCompass` event of the `emnavi`
+  application).
+
+Routes come from an OSRM-compatible server and searches from Nominatim; both are
+set in [`server/config/runtime.json`](server/config/runtime.json) (`routingUrl`,
+`geocodeUrl`; an empty value switches that part off). The defaults are the public
+OpenStreetMap-based demo servers, meant for light use: point them at your own
+servers (OSRM, or any server with the same route API) for anything heavier.
 
 The browser only gives location to `https` pages and to `localhost`, so open the
-emulator as `http://localhost:8080`, not by IP address. The map tiles need an
-internet connection; the public OpenStreetMap server is meant for light use, so
-point `mapTileUrl` at your own tile source for anything heavier.
+emulator as `http://localhost:8080`, not by IP address. The map tiles, routes and
+searches need an internet connection.
 
-There is no route planning, address search or turn-by-turn guidance: on the car
-those are done by the separate navigation software, which is not part of the
-firmware dump. The map shows where you are.
+**What is and is not the original.** On the car the map, search and guidance are
+done by the NNG navigation engine, which is in the firmware dump
+(`jci/nng/jci-linux_imx6_volans-release`, an ARM binary) with its Mazda skin
+(`jci/nng/ux/_skin_jci_mazda.zip`). This emulator does not run it: it needs a
+navigation SD card with valid licenses (the maps are not in the dump), and the
+skin's images are in NNG's own compressed bitmap format, which is not decoded
+here. The navigation screen is therefore a re-creation after the look of the
+skin (dark panels, yellow arrows), not the original screens, and the position
+arrow is not the Mazda vehicle symbol. The shell around it (status bar, Compass
+screen, buttons of the other applications) is the firmware's own.
 
 ### Vehicle profile
 
