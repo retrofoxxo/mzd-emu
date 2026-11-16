@@ -10,7 +10,10 @@ const schedmaintApp = require('./schedmaintApp');
 const ecoenergyApp = require('./ecoenergyApp');
 const usbaudioApp = require('./usbaudioApp');
 const btaudioApp = require('./btaudioApp');
+const emnaviApp = require('./emnaviApp');
 const warnguideApp = require('./warnguideApp');
+const netmgmtApp = require('./netmgmtApp');
+const mobile911App = require('./mobile911App');
 
 // Counterpart of libjciuiacommon.so (uiaid 0): the Global.* events that every dialog shares.
 // The firmware sends them to the application that owns the open dialog. Here each application
@@ -21,7 +24,7 @@ function isCommon(uiaId) {
 }
 
 // Applications with dialogs, in the order their dialogs are tried.
-const DIALOG_OWNERS = [systemApp, sysupdateApp, syssettingsApp, vehsettingsApp, schedmaintApp, warnguideApp];
+const DIALOG_OWNERS = [systemApp, sysupdateApp, syssettingsApp, vehsettingsApp, schedmaintApp, warnguideApp, netmgmtApp, btpairingApp];
 
 // The handler of the first open dialog that answers `answer` ("yes" or "no"), or null.
 function findOpenDialog(answer) {
@@ -65,7 +68,7 @@ function handleNo(ws, _params, uiaId) {
 
 // Global.Cancel is shared by the Bluetooth pairing and the music database dialogs.
 function handleCancel(ws, _params, uiaId) {
-    if (btpairingApp.handleCancel(ws)) {
+    if (btpairingApp.handleCancel(ws) || netmgmtApp.handleCancel(ws) || mobile911App.handleDismiss(ws)) {
         return;
     }
     if (sysupdateApp.dialogs.musicDBUpdateActive && isCommon(uiaId)) {
@@ -83,7 +86,12 @@ function handleTimeout(ws, _params, uiaId) {
 }
 
 function handleGoBack(ws, _params, uiaId) {
-    if (usbaudioApp.handleBack(ws) || btaudioApp.handleBack(ws)) {
+    if (
+        usbaudioApp.handleBack(ws) ||
+        btaudioApp.handleBack(ws) ||
+        emnaviApp.handleBack(ws) ||
+        mobile911App.handleDismiss(ws)
+    ) {
         return;
     }
     if (schedmaintApp.dialogs.schedMaintResetConfirmActive && isCommon(uiaId)) {
@@ -129,7 +137,7 @@ function handleSelectSettings(ws, _params, uiaId) {
     if (uiaId === 'ecoenergy') {
         ecoenergyApp.handleSelectSettings(ws);
     } else {
-        systemApp.handleSelectSettings(ws);
+        systemApp.handleSelectSettings(ws, uiaId);
     }
 }
 
@@ -138,7 +146,8 @@ const events = {
     'Global.No': handleNo,
     'Global.Cancel': handleCancel,
     'Global.GoBack': handleGoBack,
-    'Global.MenuUp': (ws) => usbaudioApp.handleBack(ws) || btaudioApp.handleBack(ws),
+    'Global.MenuUp': (ws) =>
+        usbaudioApp.handleBack(ws) || btaudioApp.handleBack(ws) || emnaviApp.handleBack(ws),
     Timeout: handleTimeout,
     SelectReset: handleSelectReset,
     SelectSettings: handleSelectSettings,

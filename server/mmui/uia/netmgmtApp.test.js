@@ -19,7 +19,7 @@ test.afterEach(() => {
     settings.currentSettings.wifiMode = 1;
 });
 
-test('sendWifiState reports mode, status and empty network lists', () => {
+test('sendWifiState reports mode, status and the networks in range', () => {
     const ws = createMockWs();
     settings.currentSettings.wifiMode = 1;
 
@@ -33,6 +33,7 @@ test('sendWifiState reports mode, status and empty network lists', () => {
         'RememberedNetworksList'
     ]);
     assert.equal(ws.messages[1].params.payload.onOffState, 1);
+    assert.ok(ws.messages[2].params.payload.size > 0);
 });
 
 test('handleSetWifiConnection persists the requested on/off state', () => {

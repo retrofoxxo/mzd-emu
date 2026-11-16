@@ -2,6 +2,7 @@ const WebSocketServer = require('ws').Server;
 const logger = require('../logger');
 const temperatureService = require('./services/temperatureService');
 const vehicleWarnings = require('./services/vehicleWarnings');
+const { getPhone } = require('./services/btPhone');
 
 // WebSocket endpoint for the emulator's own controls (the panel next to the GUI in the browser).
 // It is deliberately separate from the guiifm socket: the GUI from jci/ must only see what the
@@ -44,6 +45,16 @@ function createControlServer(port) {
                 vehicleWarnings.setWarning(Number(data.no), data.active === true);
             } else if (data && data.type === 'clearWarnings') {
                 vehicleWarnings.clearAll();
+            } else if (data && data.type === 'emergency') {
+                // the SOS button, or a collision (an accident)
+                const phone = getPhone();
+                phone.emergency.trigger(data.kind === 'collision' ? 'collision' : 'sos');
+            } else if (data && data.type === 'incomingCall') {
+                // a call to the virtual phone (only while it is connected)
+                const phone = getPhone();
+                if (phone.phoneOn()) {
+                    phone.calls.incoming(String(data.number || '').slice(0, 32));
+                }
             }
         });
     });

@@ -107,6 +107,18 @@ function handleSelectCompass(ws) {
     protocol.sendContextChange(ws, UIA_ID, 'Compass');
 }
 
+// Back from the Compass screen returns to the map. Returns false when the Compass is not on
+// screen, so that the shared handler (commonApp.js) takes over: emnavi screens are not on the
+// go-back stack.
+function handleBack(ws) {
+    const current = navigationState.current;
+    if (!current || current.uiaId !== UIA_ID || current.ctxtId !== 'Compass') {
+        return false;
+    }
+    protocol.sendContextChange(ws, UIA_ID, 'Active', { payload: { ScreenType: 'Full' } });
+    return true;
+}
+
 const events = {
     SelectCompass: handleSelectCompass,
     GpsFix: handleGpsFix,
@@ -118,6 +130,7 @@ const events = {
 module.exports = {
     events: events,
     handleSelectNavigation: handleSelectNavigation,
+    handleBack: handleBack,
     locationInfo: locationInfo,
     compassPoint: compassPoint,
     resetFix: () => {

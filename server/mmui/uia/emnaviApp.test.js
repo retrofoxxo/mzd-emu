@@ -84,3 +84,14 @@ test('SelectCompass opens the compass screen', () => {
     handleMmuiEvent(ws, 'emnavi', 'SelectCompass');
     assert.equal(ws.messages.find((m) => m.msgType === 'ctxtChg').ctxtId, 'Compass');
 });
+
+test('Back from the Compass returns to the map screen', () => {
+    reset();
+    const ws = createMockWs();
+    handleMmuiEvent(ws, 'emnavi', 'SelectCompass');
+    ws.messages.length = 0;
+    handleMmuiEvent(ws, 'common', 'Global.GoBack');
+    const ctx = ws.messages.find((m) => m.msgType === 'ctxtChg');
+    assert.equal(ctx.uiaId, 'emnavi');
+    assert.equal(ctx.ctxtId, 'Active');
+});

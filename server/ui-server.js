@@ -156,14 +156,19 @@ function createServer(handleMedia = createMediaHandler()) {
                     const injected = injectPolyfills(htmlText);
                     res.writeHead(200, {
                         'Content-Type': getContentType(filePath),
-                        'Content-Length': Buffer.byteLength(injected, 'utf8')
+                        'Content-Length': Buffer.byteLength(injected, 'utf8'),
+                        'Cache-Control': 'no-cache'
                     });
                     res.end(injected);
                 });
                 return;
             }
 
-            res.writeHead(200, { 'Content-Type': getContentType(filePath) });
+            // no-cache: the browser asks again each time, so updated scripts are never stale
+            res.writeHead(200, {
+                'Content-Type': getContentType(filePath),
+                'Cache-Control': 'no-cache'
+            });
             const stream = fs.createReadStream(filePath);
             stream.on('error', (error) => {
                 logger.error('ui-server', 'Could not stream %s: %s', filePath, error.message);

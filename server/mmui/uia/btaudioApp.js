@@ -36,8 +36,8 @@ const sendBt = (ws, msgId, payload) => sendMsg(ws, UIA_ID, msgId, payload);
 function sendMenuStatus(ws) {
     const phone = getPhone();
     sendMsg(ws, 'system', 'StatusMenuBTAudio', {
-        appStatus: phone.isConnected() ? 'Available' : 'Unavailable',
-        deviceName: phone.isConnected() ? phone.name() : ''
+        appStatus: phone.audioOn() ? 'Available' : 'Unavailable',
+        deviceName: phone.audioOn() ? phone.name() : ''
     });
 }
 
@@ -135,7 +135,7 @@ function attachClient(ws, phone) {
 function handleSelectBtAudio(ws) {
     const phone = getPhone();
     sendMenuStatus(ws);
-    if (!phone.isConnected()) {
+    if (!phone.audioOn()) {
         // "Bluetooth device disconnected"
         protocol.sendContextChange(ws, UIA_ID, 'Disconnect');
         return;

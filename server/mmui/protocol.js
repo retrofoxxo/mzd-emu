@@ -1,5 +1,6 @@
 const navigationState = require('./state/navigationState');
 const logger = require('../logger');
+const settingsTabs = require('./services/settingsTabs');
 
 function withSeqByte(jsonStr, seq) {
     return jsonStr + String.fromCharCode(seq % 128);
@@ -35,6 +36,7 @@ const sendContextChange = function (ws, uiaId, ctxtId, params, contextSeq, skipG
     ws.send(withSeqByte(transitionFalse, seqByte));
     logger.info('screen', '%s/%s', uiaId, ctxtId);
     navigationState.current = { uiaId: uiaId, ctxtId: ctxtId, params: params };
+    settingsTabs.noteScreen(uiaId, ctxtId);
 
     if (
         !skipGoBackPush &&
@@ -48,7 +50,8 @@ const sendContextChange = function (ws, uiaId, ctxtId, params, contextSeq, skipG
             uiaId === 'audiosettings' ||
             uiaId === 'sysupdate' ||
             uiaId === 'btpairing' ||
-            uiaId === 'netmgmt')
+            uiaId === 'netmgmt' ||
+            uiaId === 'phone')
     ) {
         navigationState.goBackStack.push({
             uiaId: uiaId,

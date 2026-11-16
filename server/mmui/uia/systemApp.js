@@ -8,6 +8,7 @@ const audiosettingsApp = require('./audiosettingsApp');
 const btpairingApp = require('./btpairingApp');
 const settings = require('../services/settings');
 const vehicleEquipment = require('../services/vehicleEquipment');
+const settingsTabs = require('../services/settingsTabs');
 const schedmaintApp = require('./schedmaintApp');
 const ecoenergyApp = require('./ecoenergyApp');
 const logger = require('../../logger');
@@ -16,6 +17,9 @@ const usbaudioApp = require('./usbaudioApp');
 const btaudioApp = require('./btaudioApp');
 const emnaviApp = require('./emnaviApp');
 const warnguideApp = require('./warnguideApp');
+const netmgmtApp = require('./netmgmtApp');
+const { getPhone } = require('../services/btPhone');
+const phoneApp = require('./phoneApp');
 const speaker = require('../services/speaker');
 const vehicleWarnings = require('../services/vehicleWarnings');
 
@@ -195,6 +199,20 @@ function sendWarningCount(ws) {
     });
 }
 
+// The Communication menu: its entries need the phone that is connected over Bluetooth.
+function sendCommunicationStatus(ws) {
+    const connected = getPhone().phoneOn();
+    sendApplicationStatus(ws, 'phone', true, connected);
+    sendApplicationStatus(ws, 'contacts', true, connected);
+    // text messages are not emulated: the entry stays greyed out
+    sendApplicationStatus(ws, 'sms', true, false);
+    sendApplicationStatus(ws, 'notifications', true, false);
+    sendApplicationStatus(ws, 'favorites', true, false);
+    sendApplicationStatus(ws, 'syssettings', true, true);
+    // the phone book and call history the GUI may read
+    phoneApp.sendConnectStatus(ws);
+}
+
 function sendApplicationsState(ws) {
     sendSyssettingsMsg(ws, 'VehicleConfigData', { evData: 'New' });
 
@@ -207,6 +225,9 @@ function sendApplicationsState(ws) {
     sendStatusMenu(ws, 'vehicleStatus', true);
 
     sendEntertainmentStatus(ws);
+    // the Wi-Fi symbol of the status bar
+    netmgmtApp.sendWifiStatus(ws);
+    sendCommunicationStatus(ws);
 
     sendApplicationStatus(ws, 'carplay', true, false);
     sendApplicationStatus(ws, 'androidauto', true, false);
@@ -271,23 +292,50 @@ function handleSelectNavigation(ws) {
     }
 }
 
-// Settings opens directly on the first available tab; there is no system/Settings context.
-function handleSelectSettings(ws) {
-    sendContextChange(ws, getInitialSettingsTabUiaId(), getInitialSettingsTabContextId());
-}
+// The sources whose Settings button (the gear in the player) means the sound settings.
+const AUDIO_SOURCES = [
+    'usbaudio', 'btaudio', 'fmradio', 'amradio', 'aharadio', 'auxin', 'cd', 'dab', 'satradio',
+    'xmaudio', 'pandora', 'stitcher', 'dvd', 'tv'
+];
 
-function getInitialSettingsTabUiaId() {
-    return vehicleEquipment.VEHICLE_EQUIPMENT.Hud_Installed === 1 ? 'vehsettings' : 'syssettings';
-}
-
-function getInitialSettingsTabContextId() {
-    if (vehicleEquipment.VEHICLE_EQUIPMENT.Hud_Installed !== 1) {
-        return 'DisplayTab';
+// Shows a tab of Settings. Tabs are siblings; `replace` swaps the current stack entry for the new
+// tab instead of adding depth (switching tabs), otherwise the tab is opened on top.
+function openSettingsTab(ws, tab) {
+    const screen = settingsTabs.tabScreen(tab);
+    if (!screen) {
+        return;
     }
+    if (tab === 'Devices') {
+        syssettingsApp.sendDevicesState(ws);
+    }
+    sendContextChange(ws, screen.uiaId, screen.ctxtId);
+}
 
-    return settings.HARDWARE_CONFIG.vehicleType === 'SETTINGS_VehicleModelType_J78A'
-        ? 'HUDTabJ78'
-        : 'HUDTab';
+// Which tab a Settings button opens: the Sound settings from a player, the Devices tab (Bluetooth,
+// Wi-Fi) from the Communication menu or the phone screens, and the tab used last from anywhere else.
+function settingsTabFor(senderUiaId) {
+    const current = navigationState.current;
+    if (AUDIO_SOURCES.includes(senderUiaId) || AUDIO_SOURCES.includes(current.uiaId)) {
+        return 'Sound';
+    }
+    if (senderUiaId === 'phone' || (current.uiaId === 'system' && current.ctxtId === 'Communication')) {
+        return 'Devices';
+    }
+    return settingsTabs.lastTab();
+}
+
+function handleSelectSettings(ws, senderUiaId) {
+    const tab = settingsTabFor(senderUiaId);
+    // From a player the settings sit on top of it, so that Back returns to the player.
+    const current = navigationState.current;
+    if (AUDIO_SOURCES.includes(current.uiaId)) {
+        const stack = navigationState.goBackStack;
+        const top = stack[stack.length - 1];
+        if (!top || top.uiaId !== current.uiaId || top.ctxtId !== current.ctxtId) {
+            stack.push({ uiaId: current.uiaId, ctxtId: current.ctxtId, params: current.params, contextSeq: 0 });
+        }
+    }
+    openSettingsTab(ws, tab);
 }
 
 // Tabs are siblings, so replace the current stack entry instead of adding depth.
@@ -295,38 +343,7 @@ function handleIntentSettingsTab(ws, params) {
     if (navigationState.goBackStack.length > 0) {
         navigationState.goBackStack.pop();
     }
-    switch (params.payload.settingsTab) {
-        case 'HUD':
-            // HUD uses a model-specific context under vehsettings.
-            if (settings.HARDWARE_CONFIG.vehicleType === 'SETTINGS_VehicleModelType_J78A') {
-                sendContextChange(ws, 'vehsettings', 'HUDTabJ78');
-            } else {
-                sendContextChange(ws, 'vehsettings', 'HUDTab');
-            }
-            break;
-        case 'Display':
-            sendContextChange(ws, 'syssettings', 'DisplayTab');
-            break;
-        case 'Safety':
-            sendContextChange(ws, 'vehsettings', 'SafetyTab');
-            break;
-        case 'Sound':
-            sendContextChange(ws, 'audiosettings', 'SoundTab');
-            break;
-        case 'Clock':
-            sendContextChange(ws, 'syssettings', 'ClockTab');
-            break;
-        case 'Vehicle':
-            sendContextChange(ws, 'vehsettings', 'VehicleSettingsTab');
-            break;
-        case 'Devices':
-            syssettingsApp.sendDevicesState(ws);
-            sendContextChange(ws, 'syssettings', 'DevicesTab');
-            break;
-        case 'System':
-            sendContextChange(ws, 'syssettings', 'SystemTab');
-            break;
-    }
+    openSettingsTab(ws, params.payload.settingsTab);
 }
 
 // Events of the system application (libjciuiasystem.so), dispatched by eventId.
@@ -378,6 +395,7 @@ module.exports = {
     handleSelectNavigation: handleSelectNavigation,
     sendEntertainmentStatus: sendEntertainmentStatus,
     sendWarningCount: sendWarningCount,
+    sendCommunicationStatus: sendCommunicationStatus,
     handleSelectSettings: handleSelectSettings,
     handleIntentSettingsTab: handleIntentSettingsTab
 };

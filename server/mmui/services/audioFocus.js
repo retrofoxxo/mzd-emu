@@ -4,6 +4,7 @@
 // the state reports of the browser's audio element go to the source that holds the focus.
 const players = new Map();
 let current = null;
+let suspended = [];
 
 module.exports = {
     register(name, player) {
@@ -40,8 +41,24 @@ module.exports = {
             player.resyncSpeaker();
         }
     },
+    // A phone call takes the speakers: whatever plays is paused until the call is over.
+    suspendForCall() {
+        suspended = [];
+        players.forEach((player) => {
+            if (player.snapshot().state === 'PLAY') {
+                player.pause();
+                suspended.push(player);
+            }
+        });
+    },
+    resumeAfterCall() {
+        const toResume = suspended;
+        suspended = [];
+        toResume.forEach((player) => player.resume());
+    },
     reset() {
         players.clear();
         current = null;
+        suspended = [];
     }
 };

@@ -6,7 +6,10 @@ const temperatureService = require('./mmui/services/temperatureService');
 const { createControlServer } = require('./mmui/controlPanel');
 const handleMmuiEvent = require('./mmui/dispatcher');
 const usbmsService = require('./mmui/services/usbmsService');
+const dbapiService = require('./mmui/services/dbapiService');
 const vehicleWarnings = require('./mmui/services/vehicleWarnings');
+const phoneApp = require('./mmui/uia/phoneApp');
+const mobile911App = require('./mmui/uia/mobile911App');
 const { createSpeakerServer } = require('./mmui/services/speakerServer');
 
 const runtime = require('./config/runtime.json');
@@ -52,6 +55,8 @@ function createGuiifmServer() {
             temperatureService.attach(ws);
         }
         vehicleWarnings.attach(ws);
+        phoneApp.attach(ws);
+        mobile911App.attach(ws);
         startup.sendCurrentTimeEpoch(ws);
 
         const clockSyncIntervalId =
@@ -107,6 +112,27 @@ function attachAppsdkEndpoint(server) {
     });
 }
 
+// The DB API socket answers the phone book requests (contacts and call history of the virtual
+// phone); everything else is not emulated.
+function attachDbapiEndpoint(server) {
+    server.on('connection', (ws) => {
+        logger.debug('dbapi', 'Client connected');
+        ws.on('error', (error) => logger.error('dbapi', 'WebSocket error: %s', error.message));
+        ws.on('close', () => logger.debug('dbapi', 'Client disconnected'));
+        ws.on('message', (message) => {
+            const data = parseMessage(message, 'dbapi');
+            if (!data) {
+                return;
+            }
+            const reply = dbapiService.handleRequest(data);
+            if (reply) {
+                logger.debug('dbapi', 'Reply %s', JSON.stringify(reply.msgContent.params).slice(0, 300));
+                ws.send(JSON.stringify(reply));
+            }
+        });
+    });
+}
+
 // The GUI socket and the emulator controls matter to the user; the other two are never used.
 const QUIET_SCOPES = ['appsdk', 'dbapi'];
 
@@ -133,7 +159,7 @@ if (runtime.emulatorControls) {
 }
 
 attachAppsdkEndpoint(servers[1].server);
-attachPassiveEndpoint(servers[2].server, 'dbapi');
+attachDbapiEndpoint(servers[2].server);
 servers.forEach(({ server, scope, port }) => listen(server, scope, port));
 
 function close() {
