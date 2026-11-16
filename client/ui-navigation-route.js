@@ -399,15 +399,24 @@
 
     addButton('search', { x: W - 152, y: STATUS_BAR + 6, w: 144, h: 46 }, 'Destination',
         function () { return !hasRoute() && !state.pending && !searchOpen(); }, openSearch);
-    addButton('zoomIn', { x: W - 60, y: 170, w: 52, h: 52 }, '+', function () { return !searchOpen(); },
+    addButton('zoomIn', { x: W - 76, y: 170, w: 68, h: 52 }, '+', function () { return !searchOpen(); },
         function () { map.setZoom(map.view.zoom + 1); });
-    addButton('zoomOut', { x: W - 60, y: 228, w: 52, h: 52 }, '-', function () { return !searchOpen(); },
+    addButton('zoomOut', { x: W - 76, y: 228, w: 68, h: 52 }, '-', function () { return !searchOpen(); },
         function () { map.setZoom(map.view.zoom - 1); });
-    addButton('follow', { x: W - 60, y: 286, w: 52, h: 52 }, 'GPS',
+    addButton('follow', { x: W - 76, y: 286, w: 68, h: 52 }, 'GPS',
         function () { return !map.view.follow && Boolean(map.view.fix) && !searchOpen(); },
         function () {
             map.view.follow = true;
             map.setCenter(map.view.fix.latitude, map.view.fix.longitude);
+        });
+    // The firmware's Compass screen: latitude, longitude, altitude and heading from the GPS.
+    // (On the car it is an item of the navigation software's menu.)
+    addButton('compass', { x: W - 76, y: 344, w: 68, h: 52 }, 'Compass',
+        function () { return !searchOpen(); },
+        function () {
+            if (root.framework && root.framework.sendEventToMmui) {
+                root.framework.sendEventToMmui('emnavi', 'SelectCompass');
+            }
         });
     addButton('simulate', { x: W - 296, y: H - 70, w: 138, h: 46 }, 'Simulate',
         function () { return hasRoute() && !state.simTimer && !state.arrived; }, startSimulation);
@@ -443,7 +452,7 @@
             text = state.voice ? 'Voice on' : 'Voice off';
             color = state.voice ? C.accent : C.dim;
         }
-        label(ctx, text, r.x + r.w / 2, r.y + r.h / 2, r.h > 50 ? (text.length > 1 ? 16 : 28) : 19, color, 'center');
+        label(ctx, text, r.x + r.w / 2, r.y + r.h / 2, r.h > 50 ? (text.length > 1 ? 15 : 28) : 19, color, 'center');
     }
 
     // ---------------------------------------------------------------- map layers

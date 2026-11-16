@@ -138,6 +138,15 @@ entries stay greyed out because the emulated drive reports that metadata
 browsing is not possible. The sound is made by the browser tab that shows the
 GUI; the browser may need one click on the page before it lets sound play.
 
+### Back and Settings
+
+- **Back** returns to the screen you came from: from Contacts, Call History or the
+  dial pad to the Communication menu, and from there to the Home screen.
+- **Settings** opens the pane that fits where you pressed it: the tab you used last
+  from the Home screen (the first tab the first time), the Sound settings from a
+  player's Settings button (Back returns to the player), and the Devices tab
+  (Bluetooth, Wi-Fi) from the Communication menu and the phone screens.
+
 ### Display off and system sounds
 
 - **Settings → Display → Turn display off** blacks out the screen; **Turn display
@@ -174,34 +183,73 @@ warning is still in the list.
 ### Bluetooth (virtual phone)
 
 A browser cannot act as a car's Bluetooth hands-free unit: Web Bluetooth only
-speaks BLE, not the classic profiles (A2DP audio, HFP calls, PBAP phonebook) a
-phone uses with a car. So the emulator provides a **virtual phone** that is
-paired with the head unit and connected whenever Bluetooth is switched on in the
-settings. [`server/config/bluetooth.json`](server/config/bluetooth.json)
-describes it:
+speaks BLE, not the classic profiles (A2DP audio, HFP calls, PBAP phone book) a
+phone uses with a car. So the emulator provides a **virtual phone** that plays
+the phone's part. [`server/config/bluetooth.json`](server/config/bluetooth.json)
+describes it: name, battery and signal (0 to 5), how long a call takes to be
+answered, its music folder, its contacts and its call history.
 
-```json
-{
-    "phone": { "name": "Mock Phone", "address": "AA:BB:CC:DD:EE:01",
-               "batteryLevel": 4, "signalStrength": 4, "network": "Mock Network" },
-    "musicDir": ""
-}
-```
-
-- **Status:** the phone's name appears in the paired devices list and on the
-  Bluetooth entry of the Entertainment menu; the status bar shows its battery
-  and signal (0 to 5).
+- **Pairing:** Settings → Connectivity → Bluetooth lists the paired phone. Open
+  it to connect with *Phone and Audio*, *Phone Only* or *Audio Only*, to
+  *Disconnect* it, or to *Unpair* it (with a confirmation). **Add New Device**
+  makes the unit discoverable; the virtual phone then asks to pair with a
+  six-digit code to confirm. Disconnecting a profile stops the music or ends the
+  call that used it, and greys out the matching menu entries.
+- **Calls:** Communication → **Dial Phone** opens the dial pad (typed numbers, the
+  call key and redial work). An outgoing call rings, is answered after a few
+  seconds and runs until you hang up. For an **incoming** call use the *Phone*
+  section of the emulator controls panel (`emulatorControls` set to `true`):
+  answer or ignore it on the head unit. Mute and the call timer work, music pauses
+  for a call and continues after it, and a call that interrupted a screen returns
+  to it. The ringtone and the call chime are the firmware's own recordings
+  (`jci/bthf/prompts`), so your `jci/` folder must contain them.
+- **Emergency call (Mobile 911):** the *Phone* section of the emulator controls panel
+  has two buttons. **SOS button** places the emergency call at once; **Simulate
+  accident** detects a collision: the head unit shows "Emergency Assistance
+  Activated", counts down (`emergency.countdownS` in `bluetooth.json`, 10 seconds by
+  default) and can be cancelled, then calls. Either way the unit looks for the
+  phone, connects ("Connected to 911", with the call timer, the operator
+  information text and the hang up, barge in and transfer-to-handset buttons) and
+  the call is added to the call history. Without a connected phone it says so
+  (*Phone Not Found*); with the phone's signal at 0 it offers to retry. The
+  voice prompts are the firmware's own (`jci/bteca/prompts/English`). The call
+  takes the speakers (music pauses) and ends an ordinary call.
+- **Contacts and call history:** Communication → **Contacts** and **Call History**
+  show the contacts and calls of `bluetooth.json` (all, missed). A caller is
+  recognised by number and shown by name on the call screens; a contact with
+  several numbers asks which to call. Calls you make and receive are added to the
+  history while the emulator runs.
+- **Status:** the phone's name, battery and signal show in the status bar; the
+  notices "Phone Connected" and "Audio Connected" appear when it connects.
 - **Bluetooth audio:** **Entertainment → Bluetooth** plays the phone's music with
   title, artist, album, cover, progress bar, play/pause, next/previous (hold to
   wind), repeat and shuffle. `musicDir` is the phone's music directory; empty
-  means the same music as the USB drive (`MZD_BT_MUSIC_DIR` overrides it). With
-  Bluetooth switched off the source shows its "disconnected" screen.
-- **One speaker:** USB and Bluetooth share it. Starting one pauses the other,
-  and the play/next/previous keys act on the source that plays.
+  means the same music as the USB drive (`MZD_BT_MUSIC_DIR` overrides it).
+- **One speaker:** USB, Bluetooth and calls share it. Starting one pauses the
+  other, and the play/next/previous keys act on the source that plays.
 
-Not emulated yet: phone calls, the phone book and call history, text messages,
-and the pairing flows (add, disconnect, delete a device). The paired devices list
-and the Bluetooth settings screens still work as before.
+Not emulated: text messages (the **Text Messages** entry stays greyed out), email,
+favorites and notifications. Only one phone can be paired.
+
+### Wi-Fi
+
+**Settings → Connectivity → Wi-Fi** is the firmware's screen with *virtual*
+networks, because a browser cannot scan for access points.
+[`server/config/wifi.json`](server/config/wifi.json) lists the networks in range
+with their security (`None`, `WEP`, `WPA`, `WPA2`), password and signal, the
+networks the unit remembers, and `hidden` ones that do not show in the scan.
+
+- Switching Wi-Fi on joins a remembered network that is in range.
+- Tap a network to connect. An open network connects at once; a secured one asks
+  for the password, and a wrong password shows "Invalid Password". A remembered
+  network connects without asking; the connected one offers to disconnect.
+- **Other Network** connects to a hidden network by name, security and password
+  (the access point only accepts the security it really uses).
+- **Delete Wi-Fi Network** forgets a remembered network after a confirmation.
+
+The default networks are `Home WiFi` (WPA2, remembered, password `homepassword`),
+`Coffee Shop` (open), `Neighbours` (WPA2, `neighbourpass`), `Old Router` (WEP,
+`0123456789`) and a hidden `Hidden Lab` (WPA2, `labsecret99`).
 
 ### Navigation (browser GPS, routing and guidance)
 
@@ -223,9 +271,13 @@ has `navigationSdCard` set to `On`:
   distance setting.
 - **Simulate:** drives the route at about 50 km/h without a GPS, as the navigation
   software's own simulator does.
-- **Compass:** the firmware's Compass screen is filled with your latitude,
-  longitude, altitude and heading (the `SelectCompass` event of the `emnavi`
-  application).
+- **Compass:** the **Compass** button on the map opens the firmware's Compass
+  screen with your latitude, longitude, altitude and heading; Back returns to the
+  map. Nothing in the firmware GUI opens this screen (on the car it is an item of
+  the navigation software's menu), so the button is the emulator's own way in, and
+  the `SelectCompass` event of the `emnavi` application does the same. The note on
+  that screen about a missing navigation system is part of the firmware's screen.
+  Altitude is shown only if your device reports one.
 
 Routes come from an OSRM-compatible server and searches from Nominatim; both are
 set in [`server/config/runtime.json`](server/config/runtime.json) (`routingUrl`,

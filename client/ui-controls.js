@@ -65,6 +65,36 @@
         }
     }
 
+    // A call to the virtual phone.
+    function buildPhone() {
+        var box = el('div', 'margin-top:16px;border-top:1px solid #ddd;padding-top:10px;');
+        box.appendChild(el('div', 'font-weight:bold;', 'Phone'));
+        var number = el('input', 'width:100%;margin:6px 0;box-sizing:border-box;font-size:13px;');
+        number.value = '+31 6 12345678';
+        box.appendChild(number);
+        var call = el('button', '', 'Incoming call');
+        call.addEventListener('click', function () {
+            sendControl({ type: 'incomingCall', number: number.value });
+        });
+        box.appendChild(call);
+        box.appendChild(
+            el('div', 'color:#777;font-size:11px;margin-top:4px;', 'Needs Bluetooth switched on.')
+        );
+        // Emergency call (Mobile 911): the SOS button, and an accident (a collision is detected and
+        // the unit counts down before it calls).
+        var sos = el('button', 'margin:8px 6px 0 0;color:#b00;font-weight:bold;', 'SOS button');
+        sos.addEventListener('click', function () {
+            sendControl({ type: 'emergency', kind: 'sos' });
+        });
+        var crash = el('button', 'margin-top:8px;color:#b00;font-weight:bold;', 'Simulate accident');
+        crash.addEventListener('click', function () {
+            sendControl({ type: 'emergency', kind: 'collision' });
+        });
+        box.appendChild(sos);
+        box.appendChild(crash);
+        return box;
+    }
+
     function buildWarnings() {
         var box = el('div', 'margin-top:16px;border-top:1px solid #ddd;padding-top:10px;');
         box.appendChild(el('div', 'font-weight:bold;', 'Vehicle warnings'));
@@ -159,6 +189,7 @@
         panel.appendChild(ui.status);
         ui.note = el('div', 'margin-top:6px;color:#666;font-size:12px;', '');
         panel.appendChild(ui.note);
+        panel.appendChild(buildPhone());
         panel.appendChild(buildWarnings());
         panel.appendChild(buildOutsideSwitch());
         ui.link = el('div', 'margin-top:14px;font-size:12px;color:#999;', 'Connecting…');

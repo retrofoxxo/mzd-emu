@@ -94,8 +94,52 @@
         blackout.style.display = on ? 'none' : 'block';
     }
 
+    // Phone sounds (the ringtone, the call chime): short samples played over the music, once or
+    // repeated with a pause until they are stopped.
+    var sounds = {};
+
+    function startSound(command) {
+        stopSound(command.id);
+        var audio = new Audio(command.url);
+        var entry = { audio: audio, timer: null, stopped: false };
+        sounds[command.id] = entry;
+        function playOnce() {
+            if (entry.stopped) {
+                return;
+            }
+            audio.currentTime = 0;
+            var promise = audio.play();
+            if (promise && promise.catch) {
+                promise.catch(function () {});
+            }
+        }
+        if (command.loop) {
+            audio.addEventListener('ended', function () {
+                entry.timer = setTimeout(playOnce, command.gapMs || 0);
+            });
+        }
+        playOnce();
+    }
+
+    function stopSound(id) {
+        var entry = sounds[id];
+        if (!entry) {
+            return;
+        }
+        entry.stopped = true;
+        clearTimeout(entry.timer);
+        entry.audio.pause();
+        delete sounds[id];
+    }
+
     function handle(command) {
         switch (command.cmd) {
+            case 'sound':
+                startSound(command);
+                break;
+            case 'soundStop':
+                stopSound(command.id);
+                break;
             case 'beep':
                 beep(command.pressType === 'Long');
                 break;
