@@ -9,5 +9,5 @@
     "mapAttribution": "© OpenStreetMap contributors",
     "routingUrl": "https://router.project-osrm.org",
     "geocodeUrl": "https://nominatim.openstreetmap.org",
-    "emulatorControls": false
+    "emulatorControls": true
 }

@@ -31,6 +31,15 @@ function loadBluetoothConfig(env = process.env, config = defaults, usbConfig = l
         batteryLevel: level(phone.batteryLevel, 4),
         signalStrength: level(phone.signalStrength, 4),
         network: String(phone.network || ''),
+        callAnswerMs: Number((config.calls || {}).answerMs) >= 0 ? Number(config.calls.answerMs) : 3000,
+        callRingMs: Number((config.calls || {}).ringMs) > 0 ? Number(config.calls.ringMs) : 30000,
+        emergency: {
+            countdownS: Number((config.emergency || {}).countdownS) > 0 ? Number(config.emergency.countdownS) : 10,
+            searchMs: Number((config.emergency || {}).searchMs) >= 0 ? Number(config.emergency.searchMs) : 2000,
+            connectMs: Number((config.emergency || {}).connectMs) >= 0 ? Number(config.emergency.connectMs) : 4000
+        },
+        contacts: Array.isArray(config.contacts) ? config.contacts : [],
+        callHistory: Array.isArray(config.callHistory) ? config.callHistory : [],
         musicDir: musicDir
     };
 }

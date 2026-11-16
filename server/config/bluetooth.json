@@ -6,5 +6,88 @@
         "signalStrength": 4,
         "network": "Mock Network"
     },
-    "musicDir": ""
+    "calls": {
+        "answerMs": 3000,
+        "ringMs": 30000
+    },
+    "musicDir": "",
+    "contacts": [
+        {
+            "firstName": "Anna",
+            "lastName": "de Vries",
+            "numbers": [
+                {
+                    "category": "Mobile",
+                    "number": "+31612345678"
+                },
+                {
+                    "category": "Work",
+                    "number": "+31201234567"
+                }
+            ]
+        },
+        {
+            "firstName": "Ben",
+            "lastName": "Jansen",
+            "numbers": [
+                {
+                    "category": "Mobile",
+                    "number": "+31687654321"
+                }
+            ]
+        },
+        {
+            "firstName": "Carla",
+            "lastName": "Smit",
+            "numbers": [
+                {
+                    "category": "Home",
+                    "number": "+31301112233"
+                }
+            ]
+        },
+        {
+            "firstName": "Dad",
+            "lastName": "",
+            "numbers": [
+                {
+                    "category": "Mobile",
+                    "number": "+31655500011"
+                },
+                {
+                    "category": "Home",
+                    "number": "+31355500012"
+                }
+            ]
+        }
+    ],
+    "callHistory": [
+        {
+            "number": "+31612345678",
+            "direction": "received",
+            "minutesAgo": 45,
+            "duration": 120
+        },
+        {
+            "number": "+31687654321",
+            "direction": "missed",
+            "minutesAgo": 180
+        },
+        {
+            "number": "+31301112233",
+            "direction": "dialed",
+            "minutesAgo": 1500,
+            "duration": 60
+        },
+        {
+            "number": "+31700000000",
+            "direction": "missed",
+            "minutesAgo": 2900
+        }
+    ],
+    "emergency": {
+        "countdownS": 10,
+        "searchMs": 2000,
+        "connectMs": 4000
+    }
 }

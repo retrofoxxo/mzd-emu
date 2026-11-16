@@ -1,0 +1,11 @@
+{
+    "networks": [
+        { "ssid": "Home WiFi", "security": "WPA2", "password": "homepassword", "signal": 85 },
+        { "ssid": "Coffee Shop", "security": "None", "signal": 60 },
+        { "ssid": "Neighbours", "security": "WPA2", "password": "neighbourpass", "signal": 35 },
+        { "ssid": "Old Router", "security": "WEP", "password": "0123456789", "signal": 50 },
+        { "ssid": "Hidden Lab", "security": "WPA2", "password": "labsecret99", "signal": 70, "hidden": true }
+    ],
+    "remembered": ["Home WiFi"],
+    "connectMs": 1500
+}
